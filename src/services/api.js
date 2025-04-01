@@ -11,11 +11,22 @@ const api = axios.create({
 
   export default {
     async registerUser(userData) {
-        try {
-          const response = await api.post('/register', userData);
-          return response.data;
-        } catch (error) {
-          throw error.response?.data || error;
-        }
+      try {
+        const response = await api.post('/user/register', userData);
+        return response.data;
+      } catch (error) {
+        throw error.response?.data || error;
       }
+    },
+
+    async deleteUser(userId, userData) {
+      try {
+        const response = await api.delete(`/user/delete/${userId}`, {
+          data: userData
+        });
+        return response.data;
+      } catch (error) {
+        throw error.response?.data || error;
+      }
+    }
   };

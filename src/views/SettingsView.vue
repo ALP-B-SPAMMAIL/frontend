@@ -169,6 +169,8 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import MailPermissionsForm from '@/components/MailPermissionsForm.vue';
+import api from '@/services/api';
+import localStorageUtil from '@/services/localStorage';
 
 const router = useRouter();
 
@@ -287,14 +289,32 @@ const resetDeleteForm = () => {
   };
 };
 
-const confirmDelete = () => {
+const confirmDelete = async () => {
   if (!canDelete.value) return;
   
   if (confirm('정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-    // Account deletion logic would go here
-    alert('계정이 삭제되었습니다.');
+    try {
+      // 로그인 시 localStorage 연결?
+      const userId = localStorageUtil.getUserId();
+      
+      await api.deleteUser(userId, {
+        data: {
+          password: deleteAccount.value.password
+        }
+      });
+      
+      alert('계정이 성공적으로 삭제되었습니다.');
+      
+      // 로그아웃 처리 (로컬 스토리지 정리)
+      localStorage.removeItem('userId');
+      localStorage.removeItem('token');
+      
+      router.push('/welcome');
+    } catch (error) {
+      alert('계정 삭제에 실패했습니다: ' + (error.message || '알 수 없는 오류가 발생했습니다'));
+      console.error('계정 삭제 오류:', error);
+    }
   }
-  router.push('/welcome');
 };
 </script>
 
