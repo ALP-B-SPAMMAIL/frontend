@@ -324,6 +324,12 @@ const filteredEmails = computed(() => {
         (email.subject?.toLowerCase() || '').includes(query) ||
         (email.email?.toLowerCase() || '').includes(query)
       );
+    })
+    .sort((a, b) => {
+      // 시간 문자열을 Date 객체로 변환하여 비교
+      const dateA = new Date(a.time);
+      const dateB = new Date(b.time);
+      return dateB - dateA;
     });
 });
 
