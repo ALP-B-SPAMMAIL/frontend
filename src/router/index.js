@@ -10,7 +10,7 @@ import WelcomeView from '@/views/WelcomeView.vue';
 const routes = [
   {
     path: '/',
-    redirect: '/inbox'
+    redirect: '/welcome'
   },
   {
     path: '/inbox',

@@ -255,6 +255,17 @@
             </div>
           </div>
         </div>
+
+        <div class="form-group">
+          <label for="gender">성별</label>
+          <div class="gender-select">
+            <select v-model="gender" class="form-select" @change="updateGender" id="gender">
+              <option value="" disabled selected>성별을 선택하세요</option>
+              <option value="M">남성</option>
+              <option value="F">여성</option>
+            </select>
+          </div>
+        </div>
         
         <div class="form-group">
           <label for="occupation">직업</label>
@@ -454,6 +465,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import api from '@/services/api';
 
 const router = useRouter();
 
@@ -482,6 +494,7 @@ const formData = ref({
   // Step 3: Personal information
   personalInfo: {
     birthdate: '',
+    gender: '',
     occupation: '',
     interests: ''
   }
@@ -497,6 +510,7 @@ const showAppPasswordHelp = ref(false);
 const birthYear = ref('');
 const birthMonth = ref('');
 const birthDay = ref('');
+const gender = ref('');
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
@@ -512,6 +526,14 @@ if (formData.value.personalInfo.birthdate) {
   birthYear.value = y;
   birthMonth.value = m;
   birthDay.value = d;
+}
+
+const updateGender = () => {
+  formData.value.personalInfo.gender = gender.value;
+};
+
+if (formData.value.personalInfo.gender) {
+  gender.value = formData.value.personalInfo.gender;
 }
 
 // Navigation methods
