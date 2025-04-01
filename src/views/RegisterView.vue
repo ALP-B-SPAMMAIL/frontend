@@ -66,6 +66,7 @@
               placeholder="비밀번호를 입력하세요" 
               class="form-input" 
               required
+              @input="checkPasswordStrength"
             />
             <button 
               type="button" 
@@ -76,9 +77,21 @@
               <img v-else src="@/assets/icons/hidepw.png" alt="Hide Password" width="18" height="18" />
             </button>
           </div>
-          <p class="form-help">비밀번호는 8자 이상이어야 하며, 숫자와 특수문자를 포함해야 합니다.</p>
+          
+          <!-- 비밀번호 강도 표시 -->
+          <div class="password-strength" v-if="formData.password">
+            <div class="strength-label">비밀번호 강도:</div>
+            <div class="strength-meter">
+              <div 
+                class="strength-value" 
+                :style="{ width: passwordStrength + '%' }"
+                :class="strengthClass"
+              ></div>
+            </div>
+            <div class="strength-text" :class="strengthClass">{{ strengthText }}</div>
+          </div>
         </div>
-        
+
         <div class="form-group">
           <label for="confirm-password">비밀번호 확인</label>
           <div class="input-with-icon">
@@ -90,6 +103,7 @@
               placeholder="비밀번호를 다시 입력하세요" 
               class="form-input" 
               required
+              @input="checkPasswordMatch"
             />
             <button 
               type="button" 
@@ -100,9 +114,12 @@
               <img v-else src="@/assets/icons/hidepw.png" alt="Hide Password" width="18" height="18" />
             </button>
           </div>
+          <!-- 비밀번호 일치 여부 표시 -->
+          <p v-if="formData.confirmPassword" class="password-match" :class="passwordsMatch ? 'match' : 'mismatch'">
+            {{ passwordsMatch ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.' }}
+          </p>
         </div>
-        
-        <div class="form-group timezone-group">
+        <!-- <div class="form-group timezone-group">
           <label for="timezone">시간대</label>
           <div class="input-with-icon">
             <img src="@/assets/icons/timezone.png" alt="Timezone Icon" class="input-icon" width="18" height="18" />
@@ -113,7 +130,7 @@
               <option value="Asia/Tokyo">도쿄 (GMT+9)</option>
             </select>
           </div>
-        </div>
+        </div> -->
         
         <div class="form-group terms-group">
           <label class="checkbox-label">
@@ -480,7 +497,7 @@ const formData = ref({
   email: '',
   password: '',
   confirmPassword: '',
-  timezone: 'Asia/Seoul',
+  //timezone: 'Asia/Seoul',
   agreeTerms: false,
   
   // Step 2: Mail server settings
@@ -512,20 +529,84 @@ const birthMonth = ref('');
 const birthDay = ref('');
 const gender = ref('');
 
+const passwordStrength = ref(0);
+const strengthClass = ref('');
+const strengthText = ref('');
+const passwordsMatch = ref(true);
+
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
 
+const checkPasswordStrength = () => {
+  const password = formData.value.password;
+  
+  if (!password) {
+    passwordStrength.value = 0;
+    strengthClass.value = '';
+    strengthText.value = '';
+    return;
+  }
+  
+  let strength = 0;
+  
+  if (password.length >= 8) strength += 25;
+  
+  if (/\d/.test(password)) strength += 25;
+  
+  if (/[a-z]/.test(password)) strength += 25;
+  
+  if (/[A-Z]/.test(password) || /[^a-zA-Z0-9]/.test(password)) strength += 25;
+  
+  passwordStrength.value = strength;
+  
+  if (strength < 50) {
+    strengthClass.value = 'weak';
+    strengthText.value = '약함';
+  } else if (strength < 75) {
+    strengthClass.value = 'medium';
+    strengthText.value = '보통';
+  } else {
+    strengthClass.value = 'strong';
+    strengthText.value = '강함';
+  }
+  
+  // 비밀번호가 변경되면 일치 여부도 체크
+  if (formData.value.confirmPassword) {
+    checkPasswordMatch();
+  }
+};
+
+// 비밀번호 일치 여부 체크 함수
+const checkPasswordMatch = () => {
+  if (!formData.value.confirmPassword) {
+    passwordsMatch.value = true;
+    return;
+  }
+  
+  passwordsMatch.value = formData.value.password === formData.value.confirmPassword;
+};
+
 const updateBirthdate = () => {
   if (birthYear.value && birthMonth.value && birthDay.value) {
-    formData.value.personalInfo.birthdate = `${birthYear.value}-${birthMonth.value}-${birthDay.value}`;
+    formData.value.personalInfo.birthdate = `${birthYear.value}${birthMonth.value}${birthDay.value}`;
   }
 };
 
 if (formData.value.personalInfo.birthdate) {
-  const [y, m, d] = formData.value.personalInfo.birthdate.split('-');
-  birthYear.value = y;
-  birthMonth.value = m;
-  birthDay.value = d;
+  const birthdate = formData.value.personalInfo.birthdate;
+  // YYYYMMDD 형식일 경우
+  if (birthdate.length === 8) {
+    birthYear.value = birthdate.substring(0, 4);
+    birthMonth.value = birthdate.substring(4, 6);
+    birthDay.value = birthdate.substring(6, 8);
+  } 
+  // YYYY-MM-DD 형식일 경우 (기존 데이터 호환)
+  else if (birthdate.includes('-')) {
+    const [y, m, d] = birthdate.split('-');
+    birthYear.value = y;
+    birthMonth.value = m;
+    birthDay.value = d;
+  }
 }
 
 const updateGender = () => {
@@ -559,12 +640,34 @@ const goToStep = (step) => {
   }
 };
 
-// Simple register handler (no actual functionality as requested)
-const handleRegister = () => {
-  console.log('Register attempt with:', formData.value);
-  // In a real app, this would call an API or registration service
-  alert('회원가입이 완료되었습니다!');
-  router.push('/login');
+const handleRegister = async () => {
+  try {
+    if (formData.value.password !== formData.value.confirmPassword) {
+      alert('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    const payload = {
+      email: formData.value.email,
+      name: formData.value.name,
+      job: formData.value.personalInfo.occupation,
+      gender: formData.value.personalInfo.gender,
+      birthDate: formData.value.personalInfo.birthdate,
+      password: formData.value.password,
+      interest: formData.value.personalInfo.interests,
+    };
+
+    console.log('전송 데이터:', payload);
+
+    const result = await api.registerUser(payload);
+    console.log('회원가입 성공:', result);
+
+    alert('회원가입이 완료되었습니다!');
+    router.push('/login');
+  } catch (error) {
+    console.error('회원가입 실패:', error);
+    alert(`회원가입 실패: ${error.message || '서버 오류'}`);
+  }
 };
 </script>
 
@@ -705,6 +808,73 @@ const handleRegister = () => {
   font-weight: 500;
   color: #1e293b;
   margin-bottom: 0.5rem;
+}
+
+.password-strength {
+  margin-top: 0.5rem;
+}
+
+.strength-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+.strength-meter {
+  height: 0.5rem;
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.strength-value {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s;
+}
+
+.strength-value.weak {
+  background-color: #ef4444;
+}
+
+.strength-value.medium {
+  background-color: #f59e0b;
+}
+
+.strength-value.strong {
+  background-color: #10b981;
+}
+
+.strength-text {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  text-align: right;
+}
+
+.strength-text.weak {
+  color: #ef4444;
+}
+
+.strength-text.medium {
+  color: #f59e0b;
+}
+
+.strength-text.strong {
+  color: #10b981;
+}
+
+/* 비밀번호 일치 여부 */
+.password-match {
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.password-match.match {
+  color: #10b981;
+}
+
+.password-match.mismatch {
+  color: #ef4444;
 }
 
 .date-select-group {
