@@ -112,47 +112,8 @@
     <div class="email-detail" v-if="currentEmail">
       <div class="email-detail-header">
         <h2>{{ currentEmail.subject }}</h2>
-        <div class="email-detail-actions">
-          <!-- Not in Trash Can -->
-          <template v-if="currentFolder !== 'trash'">
-            <button class="reply-btn" @click="replyToCurrentEmail(currentEmail)">
-              <img src="@/assets/icons/reply.png" alt="Reply Icon" class="mail-control-icon" />
-              <span>답장</span>
-            </button>
-            <button class="forward-btn">
-              <img src="@/assets/icons/forward.png" alt="Forward Icon" class="mail-control-icon" />
-              <span>전달</span>
-            </button>
-            <button v-if="currentFolder === 'spam'" class="not-spam-btn" @click="markAsNotSpam(currentEmail.id)">
-              <img src="@/assets/icons/shield.png" alt="Shield Icon" class="mail-control-icon" />
-              <span>스팸 아님</span>
-            </button>
-            <button v-else class="spam-btn" @click="markAsSpam(currentEmail.id)">
-              <img src="@/assets/icons/report.png" alt="Report Icon" class="mail-control-icon" />
-              <span>스팸 신고</span>
-            </button>
-          </template>
-          
-          <!-- In Trash Can -->
-          <template v-else>
-            <button class="spam-btn" @click="markAsSpam(currentEmail.id)">
-              <img src="@/assets/icons/report.png" alt="Report Icon" class="mail-control-icon" />
-              <span>스팸 신고</span>
-            </button>
-            <button class="restore-btn" @click="restoreEmail(currentEmail.id)">
-              <img src="@/assets/icons/restore.png" alt="Restore Icon" class="mail-control-icon" />
-              <span>복구</span>
-            </button>
-          </template>
-          
-          <!-- 삭제 버튼은 모든 폴더에 표시 -->
-          <button class="delete-btn" @click="deleteEmail(currentEmail.id)">
-            <img src="@/assets/icons/trash.png" alt="Trash Icon" class="mail-control-icon" />
-            <span>{{ currentFolder === 'trash' ? '영구 삭제' : '삭제' }}</span>
-          </button>
-        </div>
       </div>
-          
+            
       <div class="email-detail-info">
         <div class="sender-info">
           <span class="sender-avatar large">{{ currentEmail.sender.charAt(0) }}</span>
@@ -163,7 +124,50 @@
         <div class="email-date">{{ currentEmail.time }}</div>
       </div>
       
+      <!-- 이메일 액션 버튼들을 여기로 이동 -->
+      <div class="email-actions">
+        <!-- Not in Trash Can -->
+        <template v-if="currentFolder !== 'trash'">
+          <button class="reply-btn" @click="replyToCurrentEmail(currentEmail)">
+            <img src="@/assets/icons/reply.png" alt="Reply Icon" class="mail-control-icon" />
+            <span>답장</span>
+          </button>
+          <button class="forward-btn">
+            <img src="@/assets/icons/forward.png" alt="Forward Icon" class="mail-control-icon" />
+            <span>전달</span>
+          </button>
+          <button v-if="currentFolder === 'spam'" class="not-spam-btn" @click="markAsNotSpam(currentEmail.id)">
+            <img src="@/assets/icons/shield.png" alt="Shield Icon" class="mail-control-icon" />
+            <span>스팸 아님</span>
+          </button>
+          <button v-else class="spam-btn" @click="markAsSpam(currentEmail.id)">
+            <img src="@/assets/icons/report.png" alt="Report Icon" class="mail-control-icon" />
+            <span>스팸 신고</span>
+          </button>
+        </template>
+        
+        <!-- In Trash Can -->
+        <template v-else>
+          <button class="spam-btn" @click="markAsSpam(currentEmail.id)">
+            <img src="@/assets/icons/report.png" alt="Report Icon" class="mail-control-icon" />
+            <span>스팸 신고</span>
+          </button>
+          <button class="restore-btn" @click="restoreEmail(currentEmail.id)">
+            <img src="@/assets/icons/restore.png" alt="Restore Icon" class="mail-control-icon" />
+            <span>복구</span>
+          </button>
+        </template>
+        
+        <!-- 삭제 버튼은 모든 폴더에 표시 -->
+        <button class="delete-btn" @click="deleteEmail(currentEmail.id)">
+          <img src="@/assets/icons/trash.png" alt="Trash Icon" class="mail-control-icon" />
+          <span>{{ currentFolder === 'trash' ? '영구 삭제' : '삭제' }}</span>
+        </button>
+      </div>
+      
       <div class="email-body" v-html="currentEmail.html"></div>
+          
+      
       
       <div v-if="currentEmail.aiSummary" class="ai-summary">
         <h3>
@@ -882,39 +886,19 @@ const restoreEmail = (emailId) => {
   vertical-align: middle;
 }
 
+.email-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+}
+
 .reply-btn,
 .forward-btn,
 .spam-btn,
 .not-spam-btn,
-.delete-btn {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  background-color: #f1f5f9;
-  border: none;
-  border-radius: 0.375rem;
-  color: #1e293b;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.reply-btn:hover,
-.forward-btn:hover {
-  background-color: #e2e8f0;
-}
-
-.spam-btn:hover,
-.not-spam-btn:hover {
-  background-color: #fef9c3;
-  color: #ca8a04;
-}
-
-.delete-btn:hover {
-  background-color: #fee2e2;
-  color: #dc2626;
-}
-
+.delete-btn,
 .restore-btn {
   display: flex;
   align-items: center;
@@ -925,12 +909,32 @@ const restoreEmail = (emailId) => {
   color: #1e293b;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+}
+
+.reply-btn:hover,
+.forward-btn:hover {
+  background-color: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+.spam-btn:hover,
+.not-spam-btn:hover {
+  background-color: #fef9c3;
+  color: #ca8a04;
+  transform: translateY(-1px);
+}
+
+.delete-btn:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+  transform: translateY(-1px);
 }
 
 .restore-btn:hover {
-  background-color: #e0f2fe; /* 밝은 파란색 배경 */
-  color: #0284c7; /* 파란색 텍스트 */
+  background-color: #e0f2fe;
+  color: #0284c7;
+  transform: translateY(-1px);
 }
 
 .email-detail-actions span {
@@ -952,8 +956,8 @@ const restoreEmail = (emailId) => {
 }
 
 .sender-avatar.large {
-  width: 3rem;
-  height: 3rem;
+  width: 1.5rem;
+  height: 1.5rem;
   font-size: 1.25rem;
   margin-right: 1rem;
 }
