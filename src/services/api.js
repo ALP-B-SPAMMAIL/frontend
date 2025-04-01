@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // const API_URL = 'http://172.30.1.45:8080';
-const API_URL = 'http://localhost:8082';
+const API_URL = 'http://localhost:8083';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -40,18 +40,18 @@ const api = axios.create({
       }
     },
 
-    async getSpamMailList(userId) {
+    async getSpamMailList(userId, page) {
       try {
-        const response = await api.get(`/mail/spams/${userId}`);
+        const response = await api.get(`/mail/spams/${userId}?page=${page}`);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
 
-    async getNormalMailList(userId) {
+    async getNormalMailList(userId, page) {
       try {
-        const response = await api.get(`/mail/normals/${userId}`);
+        const response = await api.get(`/mail/normals/${userId}?page=${page}`);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;

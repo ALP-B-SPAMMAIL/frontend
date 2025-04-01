@@ -326,21 +326,15 @@ const filteredEmails = computed(() => {
   
   if (!emailList) return [];
   
-  return emailList
-    .filter(email => {
-      if (!searchQuery.value) return true;
-      const query = searchQuery.value.toLowerCase();
-      return (
-        (email.sender?.toLowerCase() || '').includes(query) ||
-        (email.subject?.toLowerCase() || '').includes(query) ||
-        (email.email?.toLowerCase() || '').includes(query)
-      );
-    })
-    .sort((a, b) => {
-      const dateA = new Date(a.time);
-      const dateB = new Date(b.time);
-      return dateB - dateA;
-    });
+  return emailList.filter(email => {
+    if (!searchQuery.value) return true;
+    const query = searchQuery.value.toLowerCase();
+    return (
+      (email.sender?.toLowerCase() || '').includes(query) ||
+      (email.subject?.toLowerCase() || '').includes(query) ||
+      (email.email?.toLowerCase() || '').includes(query)
+    );
+  });
 });
 
 // 페이지네이션된 이메일 목록
@@ -434,12 +428,24 @@ const parseMailSender = (mailSender) => {
 
 const fetchEmails = async () => {
   try {
-    const rawMails = await api.getNormalMailList(1);
-      if (!rawMails) {
-        console.error('Invalid response format');
-        return;
-      }  
-      emails.value = rawMails.map(mail => {
+    // 일반 메일 가져오기
+    const normalMailResponse = await api.getNormalMailList(9, 0);
+    if (!normalMailResponse) {
+      console.error('Invalid response format');
+      return;
+    }
+
+    // 모든 페이지의 메일을 가져오기
+    const allNormalMails = [];
+    for (let page = 0; page < normalMailResponse.totalPages; page++) {
+      const response = await api.getNormalMailList(9, page);
+      if (response && response.content) {
+        allNormalMails.push(...response.content);
+      }
+    }
+
+    // 일반 메일 매핑
+    emails.value = allNormalMails.map(mail => {
       const senderInfo = parseMailSender(mail.mailSender);
       return {
         id: mail.mailId,
@@ -450,15 +456,29 @@ const fetchEmails = async () => {
         html: mail.mailHtmlContent || '본문 없음',
         time: formatArrivedAt(mail.arrivedAt) || '시간 정보 없음',
         folder: 'inbox',
-        read: false
+        read: false,
+        aiSummary: mail.mailSummarize || null
       };
     });
-    const rawSpamMails = await api.getSpamMailList(1);
-      if (!rawSpamMails) {
-        console.error('Invalid response format');
-        return;
-      }  
-      spamEmails.value = rawSpamMails.map(mail => {
+
+    // 스팸 메일 가져오기
+    const spamMailResponse = await api.getSpamMailList(9, 0);
+    if (!spamMailResponse) {
+      console.error('Invalid response format');
+      return;
+    }
+
+    // 모든 페이지의 스팸 메일을 가져오기
+    const allSpamMails = [];
+    for (let page = 0; page < spamMailResponse.totalPages; page++) {
+      const response = await api.getSpamMailList(9, page);
+      if (response && response.content) {
+        allSpamMails.push(...response.content);
+      }
+    }
+
+    // 스팸 메일 매핑
+    spamEmails.value = allSpamMails.map(mail => {
       const senderInfo = parseMailSender(mail.mailSender);
       return {
         id: mail.mailId,
@@ -469,19 +489,35 @@ const fetchEmails = async () => {
         html: mail.mailHtmlContent || '본문 없음',
         time: formatArrivedAt(mail.arrivedAt) || '시간 정보 없음',
         folder: 'spam',
-        read: false
+        read: false,
+        aiSummary: mail.mailSummarize || null
       };
     });
   } catch (error) {
     console.error('Error fetching emails:', error);
+    emails.value = [];
     spamEmails.value = [];
   }
 };
 
 const formatArrivedAt = (arrivedAt) => {
-  if (!arrivedAt || arrivedAt.length < 6) return '시간 정보 없음';
-  const [y, m, d, h, min] = arrivedAt;
-  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')} ${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+  if (!arrivedAt) return '시간 정보 없음';
+  
+  try {
+    const date = new Date(arrivedAt);
+    if (isNaN(date.getTime())) return '시간 정보 없음';
+    
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return '시간 정보 없음';
+  }
 };
 
 // const extractSubjectFromHtml = (html) => {
