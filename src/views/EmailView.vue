@@ -445,14 +445,14 @@ const formatArrivedAt = (arrivedAt) => {
   return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')} ${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
 };
 
-const extractSubjectFromHtml = (html) => {
-  // 예: <div style="font-size: 24px;">로그인에 사용되는 앱 비밀번호가 삭제됨 </div>
-  const match = html?.match(/<div[^>]*font-size:\s*24px[^>]*>(.*?)<\/div>/i);
-  if (match && match[1]) {
-    return match[1].trim();
-  }
-  return '(제목 없음)';
-};
+// const extractSubjectFromHtml = (html) => {
+//   // 예: <div style="font-size: 24px;">로그인에 사용되는 앱 비밀번호가 삭제됨 </div>
+//   const match = html?.match(/<div[^>]*font-size:\s*24px[^>]*>(.*?)<\/div>/i);
+//   if (match && match[1]) {
+//     return match[1].trim();
+//   }
+//   return '(제목 없음)';
+// };
 
 // 페이지 이동 함수
 const goToPage = (page) => {
