@@ -38,5 +38,24 @@ const api = axios.create({
       } catch (error) {
         throw error.response?.data || error;
       }
+    },
+
+    async getSpamMailList(userId) {
+      try {
+        const response = await api.get(`/mail/spams/${userId}`);
+        return response.data;
+      } catch (error) {
+        throw error.response?.data || error;
+      }
+    },
+
+    async getNormalMailList(userId) {
+      try {
+        const response = await api.get(`/mail/normals/${userId}`);
+        return response.data;
+      } catch (error) {
+        throw error.response?.data || error;
+      }
     }
+    
   };

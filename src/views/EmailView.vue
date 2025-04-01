@@ -259,8 +259,15 @@ const folderCounts = computed(() => {
     trash: 0
   };
   
-  // 각 폴더의 이메일 수 계산
+  // 일반 메일 수 계산
   emails.value.forEach(email => {
+    if (counts[email.folder] !== undefined) {
+      counts[email.folder]++;
+    }
+  });
+  
+  // 스팸 메일 수 계산
+  spamEmails.value.forEach(email => {
     if (counts[email.folder] !== undefined) {
       counts[email.folder]++;
     }
@@ -277,6 +284,7 @@ const labels = [
 ];
 
 const emails = ref([]);
+const spamEmails = ref([]);
 
 // Reactive state
 const currentFolder = ref('inbox');
@@ -313,9 +321,12 @@ const folderTitle = computed(() => {
 });
 
 const filteredEmails = computed(() => {
-  if (!emails.value) return [];
-  return emails.value
-    .filter(email => email.folder === currentFolder.value)
+  // 현재 폴더에 따라 적절한 이메일 목록 선택
+  const emailList = currentFolder.value === 'spam' ? spamEmails.value : emails.value;
+  
+  if (!emailList) return [];
+  
+  return emailList
     .filter(email => {
       if (!searchQuery.value) return true;
       const query = searchQuery.value.toLowerCase();
@@ -326,7 +337,6 @@ const filteredEmails = computed(() => {
       );
     })
     .sort((a, b) => {
-      // 시간 문자열을 Date 객체로 변환하여 비교
       const dateA = new Date(a.time);
       const dateB = new Date(b.time);
       return dateB - dateA;
@@ -364,8 +374,13 @@ const displayedPages = computed(() => {
 });
 
 const currentEmail = computed(() => {
-  if (!selectedEmail.value || !emails.value) return null;
-  return emails.value.find(email => email.id === selectedEmail.value) || null;
+  if (!selectedEmail.value) return null;
+  
+  // 현재 폴더에 따라 적절한 이메일 목록 선택
+  const emailList = currentFolder.value === 'spam' ? spamEmails.value : emails.value;
+  if (!emailList) return null;
+  
+  return emailList.find(email => email.id === selectedEmail.value) || null;
 });
 
 const noEmailsMessage = computed(() => {
@@ -419,13 +434,12 @@ const parseMailSender = (mailSender) => {
 
 const fetchEmails = async () => {
   try {
-    const rawMails = await api.getMailList(1);
-    if (!rawMails) {
-      console.error('Invalid response format');
-      return;
-    }
-
-    emails.value = rawMails.map(mail => {
+    const rawMails = await api.getNormalMailList(1);
+      if (!rawMails) {
+        console.error('Invalid response format');
+        return;
+      }  
+      emails.value = rawMails.map(mail => {
       const senderInfo = parseMailSender(mail.mailSender);
       return {
         id: mail.mailId,
@@ -439,9 +453,28 @@ const fetchEmails = async () => {
         read: false
       };
     });
+    const rawSpamMails = await api.getSpamMailList(1);
+      if (!rawSpamMails) {
+        console.error('Invalid response format');
+        return;
+      }  
+      spamEmails.value = rawSpamMails.map(mail => {
+      const senderInfo = parseMailSender(mail.mailSender);
+      return {
+        id: mail.mailId,
+        sender: senderInfo.name,
+        email: senderInfo.email,
+        subject: mail.mailTitle || '제목 없음',
+        preview: mail.mailContent?.slice(0, 100).replace(/\r\n|\n/g, ' ') || '미리보기 없음',
+        html: mail.mailHtmlContent || '본문 없음',
+        time: formatArrivedAt(mail.arrivedAt) || '시간 정보 없음',
+        folder: 'spam',
+        read: false
+      };
+    });
   } catch (error) {
     console.error('Error fetching emails:', error);
-    emails.value = [];
+    spamEmails.value = [];
   }
 };
 
@@ -522,9 +555,23 @@ const handleSendEmail = (emailData) => {
 };
 
 const markAsSpam = (emailId) => {
-  const email = emails.value.find(e => e.id === emailId);
+  // 현재 폴더에 따라 적절한 이메일 목록 선택
+  const emailList = currentFolder.value === 'spam' ? spamEmails.value : emails.value;
+  const email = emailList.find(e => e.id === emailId);
+  
   if (email) {
-    email.folder = 'spam';
+    // 스팸 메일 목록에 추가
+    spamEmails.value.push({
+      ...email,
+      folder: 'spam'
+    });
+    
+    // 원래 목록에서 제거
+    if (currentFolder.value === 'spam') {
+      spamEmails.value = spamEmails.value.filter(e => e.id !== emailId);
+    } else {
+      emails.value = emails.value.filter(e => e.id !== emailId);
+    }
     
     // 선택 해제
     if (selectedEmail.value === emailId) {
@@ -534,9 +581,17 @@ const markAsSpam = (emailId) => {
 };
 
 const markAsNotSpam = (emailId) => {
-  const email = emails.value.find(e => e.id === emailId);
+  const email = spamEmails.value.find(e => e.id === emailId);
+  
   if (email) {
-    email.folder = 'inbox';
+    // 일반 메일 목록에 추가
+    emails.value.push({
+      ...email,
+      folder: 'inbox'
+    });
+    
+    // 스팸 목록에서 제거
+    spamEmails.value = spamEmails.value.filter(e => e.id !== emailId);
     
     // 선택 해제
     if (selectedEmail.value === emailId) {
