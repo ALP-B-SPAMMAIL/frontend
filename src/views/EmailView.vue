@@ -58,7 +58,7 @@
             <img src="@/assets/icons/search.png" alt="Search Icon" class="search-icon" />
             <input type="text" placeholder="메일 검색" v-model="searchQuery" />
           </div>
-          <button class="refresh-icon">
+          <button class="refresh-icon" @click="refreshEmails">
             <img src="@/assets/icons/refresh.png" alt="Refresh Icon" class="refresh-icon" />
           </button>
         </div>
@@ -157,16 +157,13 @@
         <div class="sender-info">
           <span class="sender-avatar large">{{ currentEmail.sender.charAt(0) }}</span>
           <div>
-            <div class="sender-name">{{ currentEmail.sender }}</div>
-            <div class="sender-email">{{ currentEmail.email }}</div>
+            <div class="sender-email">{{ currentEmail.sender }}</div>
           </div>
         </div>
-        <div class="email-date">{{ currentEmail.date }}</div>
+        <div class="email-date">{{ currentEmail.time }}</div>
       </div>
       
-      <div class="email-body">
-        {{ currentEmail.body }}
-      </div>
+      <div class="email-body" v-html="currentEmail.html"></div>
       
       <div v-if="currentEmail.aiSummary" class="ai-summary">
         <h3>
@@ -210,8 +207,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import ComposeEmail from '@/components/ComposeEmail.vue';
+import api from '@/services/api';
 
 // Sample data
 const folders = [
@@ -244,73 +242,75 @@ const labels = [
   { id: 'bills', name: '청구서', color: '#f59e0b' }
 ];
 
-const emails = ref([
-  {
-    id: 1,
-    sender: '김철수',
-    email: 'chulsoo.kim@example.com',
-    subject: '프로젝트 미팅 일정 안내',
-    preview: '안녕하세요, 다음 주 화요일 오후 2시에 프로젝트 미팅이 예정되어 있습니다.',
-    body: '안녕하세요,\n\n다음 주 화요일 오후 2시에 프로젝트 미팅이 예정되어 있습니다. 회의실 A에서 진행될 예정이니 참석 부탁드립니다.\n\n회의 안건:\n1. 프로젝트 진행 상황 보고\n2. 다음 단계 계획 수립\n3. 예산 검토\n\n궁금한 점이 있으시면 연락 주세요.\n\n감사합니다.\n김철수 드림',
-    time: '오전 10:23',
-    date: '2023년 5월 15일 오전 10:23',
-    read: false,
-    folder: 'inbox',
-    aiSummary: '화요일 오후 2시 회의실 A에서 프로젝트 미팅이 있습니다. 회의 안건은 진행 상황 보고, 계획 수립, 예산 검토입니다.'
-  },
-  {
-    id: 2,
-    sender: '이영희',
-    email: 'younghee.lee@example.com',
-    subject: '주간 보고서 제출 요청',
-    preview: '안녕하세요, 이번 주 금요일까지 주간 보고서 제출 부탁드립니다.',
-    body: '안녕하세요,\n\n이번 주 금요일까지 주간 보고서 제출 부탁드립니다. 지난 주와 동일한 양식으로 작성해 주시면 됩니다.\n\n제출 마감: 금요일 오후 6시\n제출 방법: 이메일 첨부\n\n협조해 주셔서 감사합니다.\n\n이영희 드림',
-    time: '어제',
-    date: '2023년 5월 14일 오후 4:15',
-    read: true,
-    folder: 'inbox',
-    aiSummary: '금요일 오후 6시까지 주간 보고서를 이메일로 제출해야 합니다. 지난 주와 동일한 양식으로 작성하세요.'
-  },
-  {
-    id: 3,
-    sender: '박지민',
-    email: 'jimin.park@example.com',
-    subject: '신규 서비스 출시 안내',
-    preview: '안녕하세요, 저희 회사의 신규 서비스가 다음 달 1일부터 출시됩니다.',
-    body: '안녕하세요,\n\n저희 회사의 신규 서비스가 다음 달 1일부터 출시됩니다. 이번 서비스는 고객들의 요청을 반영하여 개발되었으며, 다음과 같은 특징이 있습니다:\n\n- 실시간 데이터 분석\n- 모바일 최적화 인터페이스\n- 클라우드 기반 저장 시스템\n\n자세한 내용은 첨부된 브로셔를 참고해 주세요.\n\n감사합니다.\n박지민 드림',
-    time: '5월 12일',
-    date: '2023년 5월 12일 오전 9:30',
-    read: true,
-    folder: 'inbox',
-    aiSummary: '다음 달 1일부터 신규 서비스가 출시됩니다. 실시간 데이터 분석, 모바일 최적화, 클라우드 기반 저장 시스템이 특징입니다.'
-  },
-  {
-    id: 4,
-    sender: 'Amazon',
-    email: 'no-reply@amazon.com',
-    subject: '계정 보안 경고: 즉시 조치 필요',
-    preview: '귀하의 계정에 비정상적인 로그인이 감지되었습니다. 지금 바로 확인하세요.',
-    body: '안녕하세요,\n\n귀하의 Amazon 계정에 비정상적인 로그인이 감지되었습니다. 계정 보안을 위해 즉시 아래 링크를 클릭하여 비밀번호를 재설정해 주세요.\n\n[비밀번호 재설정하기](http://malicious-link.com)\n\n본 메일에 응답하지 않을 경우 계정이 24시간 내에 정지될 수 있습니다.\n\nAmazon 보안팀 드림',
-    time: '5월 10일',
-    date: '2023년 5월 10일 오후 2:45',
-    read: false,
-    folder: 'spam',
-    aiSummary: '주의! 이 메일은 피싱 시도로 의심됩니다. Amazon을 사칭하여 비밀번호 재설정을 유도하고 있습니다. 링크를 클릭하지 마세요.'
-  },
-  {
-    id: 5,
-    sender: '은행 고객센터',
-    email: 'support@bank-secure.com',
-    subject: '귀하의 계좌가 제한되었습니다',
-    preview: '귀하의 은행 계좌가 보안상의 이유로 제한되었습니다. 지금 바로 확인하세요.',
-    body: '안녕하세요,\n\n귀하의 은행 계좌가 보안상의 이유로 제한되었습니다. 계좌 접근을 다시 활성화하려면 아래 링크를 통해 개인 정보를 확인해 주세요.\n\n[계좌 활성화하기](http://fake-bank.com)\n\n24시간 내에 조치하지 않으면 계좌가 영구 정지될 수 있습니다.\n\n은행 보안팀 드림',
-    time: '5월 9일',
-    date: '2023년 5월 9일 오전 8:15',
-    read: true,
-    folder: 'spam',
-    aiSummary: '주의! 이 메일은 피싱 시도입니다. 은행을 사칭하여 개인정보를 요구하고 있습니다. 링크를 클릭하지 마세요.'
-  }
-]);
+// const emails = ref([
+//   {
+//     id: 1,
+//     sender: '김철수',
+//     email: 'chulsoo.kim@example.com',
+//     subject: '프로젝트 미팅 일정 안내',
+//     preview: '안녕하세요, 다음 주 화요일 오후 2시에 프로젝트 미팅이 예정되어 있습니다.',
+//     body: '안녕하세요,\n\n다음 주 화요일 오후 2시에 프로젝트 미팅이 예정되어 있습니다. 회의실 A에서 진행될 예정이니 참석 부탁드립니다.\n\n회의 안건:\n1. 프로젝트 진행 상황 보고\n2. 다음 단계 계획 수립\n3. 예산 검토\n\n궁금한 점이 있으시면 연락 주세요.\n\n감사합니다.\n김철수 드림',
+//     time: '오전 10:23',
+//     date: '2023년 5월 15일 오전 10:23',
+//     read: false,
+//     folder: 'inbox',
+//     aiSummary: '화요일 오후 2시 회의실 A에서 프로젝트 미팅이 있습니다. 회의 안건은 진행 상황 보고, 계획 수립, 예산 검토입니다.'
+//   },
+//   {
+//     id: 2,
+//     sender: '이영희',
+//     email: 'younghee.lee@example.com',
+//     subject: '주간 보고서 제출 요청',
+//     preview: '안녕하세요, 이번 주 금요일까지 주간 보고서 제출 부탁드립니다.',
+//     body: '안녕하세요,\n\n이번 주 금요일까지 주간 보고서 제출 부탁드립니다. 지난 주와 동일한 양식으로 작성해 주시면 됩니다.\n\n제출 마감: 금요일 오후 6시\n제출 방법: 이메일 첨부\n\n협조해 주셔서 감사합니다.\n\n이영희 드림',
+//     time: '어제',
+//     date: '2023년 5월 14일 오후 4:15',
+//     read: true,
+//     folder: 'inbox',
+//     aiSummary: '금요일 오후 6시까지 주간 보고서를 이메일로 제출해야 합니다. 지난 주와 동일한 양식으로 작성하세요.'
+//   },
+//   {
+//     id: 3,
+//     sender: '박지민',
+//     email: 'jimin.park@example.com',
+//     subject: '신규 서비스 출시 안내',
+//     preview: '안녕하세요, 저희 회사의 신규 서비스가 다음 달 1일부터 출시됩니다.',
+//     body: '안녕하세요,\n\n저희 회사의 신규 서비스가 다음 달 1일부터 출시됩니다. 이번 서비스는 고객들의 요청을 반영하여 개발되었으며, 다음과 같은 특징이 있습니다:\n\n- 실시간 데이터 분석\n- 모바일 최적화 인터페이스\n- 클라우드 기반 저장 시스템\n\n자세한 내용은 첨부된 브로셔를 참고해 주세요.\n\n감사합니다.\n박지민 드림',
+//     time: '5월 12일',
+//     date: '2023년 5월 12일 오전 9:30',
+//     read: true,
+//     folder: 'inbox',
+//     aiSummary: '다음 달 1일부터 신규 서비스가 출시됩니다. 실시간 데이터 분석, 모바일 최적화, 클라우드 기반 저장 시스템이 특징입니다.'
+//   },
+//   {
+//     id: 4,
+//     sender: 'Amazon',
+//     email: 'no-reply@amazon.com',
+//     subject: '계정 보안 경고: 즉시 조치 필요',
+//     preview: '귀하의 계정에 비정상적인 로그인이 감지되었습니다. 지금 바로 확인하세요.',
+//     body: '안녕하세요,\n\n귀하의 Amazon 계정에 비정상적인 로그인이 감지되었습니다. 계정 보안을 위해 즉시 아래 링크를 클릭하여 비밀번호를 재설정해 주세요.\n\n[비밀번호 재설정하기](http://malicious-link.com)\n\n본 메일에 응답하지 않을 경우 계정이 24시간 내에 정지될 수 있습니다.\n\nAmazon 보안팀 드림',
+//     time: '5월 10일',
+//     date: '2023년 5월 10일 오후 2:45',
+//     read: false,
+//     folder: 'spam',
+//     aiSummary: '주의! 이 메일은 피싱 시도로 의심됩니다. Amazon을 사칭하여 비밀번호 재설정을 유도하고 있습니다. 링크를 클릭하지 마세요.'
+//   },
+//   {
+//     id: 5,
+//     sender: '은행 고객센터',
+//     email: 'support@bank-secure.com',
+//     subject: '귀하의 계좌가 제한되었습니다',
+//     preview: '귀하의 은행 계좌가 보안상의 이유로 제한되었습니다. 지금 바로 확인하세요.',
+//     body: '안녕하세요,\n\n귀하의 은행 계좌가 보안상의 이유로 제한되었습니다. 계좌 접근을 다시 활성화하려면 아래 링크를 통해 개인 정보를 확인해 주세요.\n\n[계좌 활성화하기](http://fake-bank.com)\n\n24시간 내에 조치하지 않으면 계좌가 영구 정지될 수 있습니다.\n\n은행 보안팀 드림',
+//     time: '5월 9일',
+//     date: '2023년 5월 9일 오전 8:15',
+//     read: true,
+//     folder: 'spam',
+//     aiSummary: '주의! 이 메일은 피싱 시도입니다. 은행을 사칭하여 개인정보를 요구하고 있습니다. 링크를 클릭하지 마세요.'
+//   }
+// ]);
+
+const emails = ref([]);
 
 // Reactive state
 const currentFolder = ref('inbox');
@@ -323,6 +323,14 @@ const showComposeEmail = ref(false);
 const isReply = ref(false);
 const replyToEmail = ref({});
 
+const refreshEmails = () => {
+  fetchEmails();
+};
+
+onMounted(() => {
+  fetchEmails();
+});
+
 // Computed properties
 const folderTitle = computed(() => {
   const folder = folders.find(f => f.id === currentFolder.value);
@@ -330,22 +338,23 @@ const folderTitle = computed(() => {
 });
 
 const filteredEmails = computed(() => {
+  if (!emails.value) return [];
   return emails.value
     .filter(email => email.folder === currentFolder.value)
     .filter(email => {
       if (!searchQuery.value) return true;
       const query = searchQuery.value.toLowerCase();
       return (
-        email.sender.toLowerCase().includes(query) ||
-        email.subject.toLowerCase().includes(query) ||
-        email.preview.toLowerCase().includes(query)
+        (email.sender?.toLowerCase() || '').includes(query) ||
+        (email.subject?.toLowerCase() || '').includes(query) ||
+        (email.preview?.toLowerCase() || '').includes(query)
       );
     });
 });
 
 const currentEmail = computed(() => {
-  if (!selectedEmail.value) return null;
-  return emails.value.find(email => email.id === selectedEmail.value);
+  if (!selectedEmail.value || !emails.value) return null;
+  return emails.value.find(email => email.id === selectedEmail.value) || null;
 });
 
 const noEmailsMessage = computed(() => {
@@ -359,6 +368,45 @@ const noEmailsMessage = computed(() => {
 const selectFolder = (folderId) => {
   currentFolder.value = folderId;
   selectedEmail.value = null;
+};
+
+const fetchEmails = async () => {
+  try {
+    const rawMails = await api.getMailList(1);
+    if (!rawMails) {
+      console.error('Invalid response format');
+      return;
+    }
+
+    emails.value = rawMails.map(mail => ({
+      id: mail.mailId,
+      sender: mail.mailSender || 'Unknown Sender',
+      subject: extractSubjectFromHtml(mail.mailHtmlContent) || '제목 없음',
+      preview: mail.mailContent?.slice(0, 100).replace(/\r\n|\n/g, ' ') || '미리보기 없음',
+      html: mail.mailHtmlContent || '본문 없음',
+      time: formatArrivedAt(mail.arrivedAt) || '시간 정보 없음',
+      folder: 'inbox',
+      read: false
+    }));
+  } catch (error) {
+    console.error('Error fetching emails:', error);
+    emails.value = [];
+  }
+};
+
+const formatArrivedAt = (arrivedAt) => {
+  if (!arrivedAt || arrivedAt.length < 6) return '시간 정보 없음';
+  const [y, m, d, h, min] = arrivedAt;
+  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')} ${h}:${min}`;
+};
+
+const extractSubjectFromHtml = (html) => {
+  // 예: <div style="font-size: 24px;">로그인에 사용되는 앱 비밀번호가 삭제됨 </div>
+  const match = html?.match(/<div[^>]*font-size:\s*24px[^>]*>(.*?)<\/div>/i);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+  return '(제목 없음)';
 };
 
 // Updated to toggle email selection

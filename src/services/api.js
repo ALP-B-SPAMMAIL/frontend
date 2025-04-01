@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://172.30.1.45:8080';
+// const API_URL = 'http://172.30.1.45:8080';
+const API_URL = 'http://localhost:8082';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -24,6 +25,15 @@ const api = axios.create({
         const response = await api.delete(`/user/delete/${userId}`, {
           data: userData
         });
+        return response.data;
+      } catch (error) {
+        throw error.response?.data || error;
+      }
+    },
+
+    async getMailList(userId) {
+      try {
+        const response = await api.get(`/mail/${userId}`);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
