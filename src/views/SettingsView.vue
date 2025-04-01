@@ -298,9 +298,7 @@ const confirmDelete = async () => {
       const userId = localStorageUtil.getUserId();
       
       await api.deleteUser(userId, {
-        data: {
-          password: deleteAccount.value.password
-        }
+        password: deleteAccount.value.password
       });
       
       alert('계정이 성공적으로 삭제되었습니다.');
