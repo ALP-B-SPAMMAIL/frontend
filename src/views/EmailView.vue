@@ -66,7 +66,7 @@
       
       <div class="email-list-content">
         <div 
-          v-for="email in filteredEmails" 
+          v-for="email in paginatedEmails" 
           :key="email.id" 
           class="email-item"
           :class="{ unread: !email.read, selected: selectedEmail === email.id }"
@@ -85,7 +85,6 @@
             </div>
             <div class="email-sender-name">{{ email.sender }}</div>
             <div class="email-address">{{ email.email }}</div>
-            <div class="email-preview">{{ email.preview }}</div>
           </div>
           
           <!-- AI Summary Tooltip -->
@@ -106,6 +105,37 @@
           <img src="@/assets/icons/noemail.png" alt="No Emails Icon" class="no-emails-icon" />
           <p>{{ noEmailsMessage }}</p>
         </div>
+      </div>
+      
+      <!-- 페이지네이션 컨트롤 -->
+      <div v-if="totalPages > 1" class="pagination-controls">
+        <button 
+          class="pagination-btn" 
+          :disabled="currentPage === 1"
+          @click="goToPage(currentPage - 1)"
+        >
+          <span class="pagination-arrow">←</span>
+        </button>
+        
+        <div class="pagination-pages">
+          <button 
+            v-for="page in displayedPages" 
+            :key="page" 
+            class="pagination-page" 
+            :class="{ active: currentPage === page }"
+            @click="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+        </div>
+        
+        <button 
+          class="pagination-btn" 
+          :disabled="currentPage === totalPages"
+          @click="goToPage(currentPage + 1)"
+        >
+          <span class="pagination-arrow">→</span>
+        </button>
       </div>
     </div>
     
@@ -211,7 +241,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import ComposeEmail from '@/components/ComposeEmail.vue';
 import api from '@/services/api';
 
@@ -259,6 +289,15 @@ const showComposeEmail = ref(false);
 const isReply = ref(false);
 const replyToEmail = ref({});
 
+// 페이지네이션 관련 상태
+const currentPage = ref(1);
+const itemsPerPage = 10;
+
+// 폴더나 검색어가 변경되면 첫 페이지로 이동
+watch([currentFolder, searchQuery], () => {
+  currentPage.value = 1;
+});
+
 const refreshEmails = () => {
   fetchEmails();
 };
@@ -283,9 +322,39 @@ const filteredEmails = computed(() => {
       return (
         (email.sender?.toLowerCase() || '').includes(query) ||
         (email.subject?.toLowerCase() || '').includes(query) ||
-        (email.preview?.toLowerCase() || '').includes(query)
+        (email.email?.toLowerCase() || '').includes(query)
       );
     });
+});
+
+// 페이지네이션된 이메일 목록
+const paginatedEmails = computed(() => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  return filteredEmails.value.slice(startIndex, endIndex);
+});
+
+// 총 페이지 수
+const totalPages = computed(() => {
+  return Math.ceil(filteredEmails.value.length / itemsPerPage);
+});
+
+// 표시할 페이지 번호 (최대 5개)
+const displayedPages = computed(() => {
+  if (totalPages.value <= 5) {
+    return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+  }
+  
+  // 현재 페이지 주변 페이지 표시
+  let start = Math.max(currentPage.value - 2, 1);
+  let end = Math.min(start + 4, totalPages.value);
+  
+  // 끝에 가까울 때 조정
+  if (end === totalPages.value) {
+    start = Math.max(end - 4, 1);
+  }
+  
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 });
 
 const currentEmail = computed(() => {
@@ -373,7 +442,7 @@ const fetchEmails = async () => {
 const formatArrivedAt = (arrivedAt) => {
   if (!arrivedAt || arrivedAt.length < 6) return '시간 정보 없음';
   const [y, m, d, h, min] = arrivedAt;
-  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')} ${h}:${min}`;
+  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')} ${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
 };
 
 const extractSubjectFromHtml = (html) => {
@@ -383,6 +452,18 @@ const extractSubjectFromHtml = (html) => {
     return match[1].trim();
   }
   return '(제목 없음)';
+};
+
+// 페이지 이동 함수
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    // 페이지 변경 시 스크롤을 맨 위로 이동
+    const emailListContent = document.querySelector('.email-list-content');
+    if (emailListContent) {
+      emailListContent.scrollTop = 0;
+    }
+  }
 };
 
 // Updated to toggle email selection
@@ -498,7 +579,7 @@ const restoreEmail = (emailId) => {
   height: calc(100vh - 5rem);
   background-color: #e2e8f0;
   border-radius: 0.5rem;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 /* Email Sidebar */
@@ -621,6 +702,8 @@ const restoreEmail = (emailId) => {
   flex-direction: column;
   border-right: 1px solid #e2e8f0;
   max-width: 450px;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .email-list-header {
@@ -629,6 +712,7 @@ const restoreEmail = (emailId) => {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  flex-shrink: 0; /* 헤더가 줄어들지 않도록 설정 */
 }
 
 .email-list-header h2 {
@@ -684,17 +768,20 @@ const restoreEmail = (emailId) => {
 
 .email-list-content {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* 스크롤 적용 */
+  -webkit-overflow-scrolling: touch; /* iOS 스크롤 부드럽게 */
+  scroll-behavior: smooth; /* 부드러운 스크롤 효과 */
 }
 
 .email-item {
   display: flex;
   align-items: center;
-  padding: 1rem;
+  padding: 0.75rem;
   border-bottom: 1px solid #e2e8f0;
   cursor: pointer;
   transition: background-color 0.2s;
-  position: relative; /* Added for tooltip positioning */
+  position: relative;
+  min-height: 4rem; /* 최소 높이 설정 */
 }
 
 .email-item:hover {
@@ -733,34 +820,106 @@ const restoreEmail = (emailId) => {
 .email-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 0.25rem;
-}
-
-.email-sender-name {
-  font-weight: 350;
-  color: #1e293b;
-}
-
-.email-time {
-  font-size: 0.75rem;
-  color: #64748b;
 }
 
 .email-subject {
   font-weight: 500;
   color: #1e293b;
-  margin-bottom: 0.25rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
+  margin-right: 1rem;
 }
 
-.email-preview {
-  font-size: 0.875rem;
+.email-time {
+  font-size: 0.75rem;
   color: #64748b;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.email-sender-name {
+  font-size: 0.875rem;
+  color: #475569;
+  margin-bottom: 0.125rem;
+}
+
+.email-address {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* 페이지네이션 컨트롤 */
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  gap: 0.5rem;
+}
+
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  background-color: #ffffff;
+  color: #64748b;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-arrow {
+  font-size: 1rem;
+}
+
+.pagination-pages {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.pagination-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  background-color: #ffffff;
+  color: #64748b;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-page:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+.pagination-page.active {
+  background-color: #1e3a8a;
+  color: #ffffff;
+  border-color: #1e3a8a;
 }
 
 /* AI Summary Tooltip */
@@ -827,6 +986,7 @@ const restoreEmail = (emailId) => {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  height: 100%;
 }
 
 .email-detail-header {
@@ -1045,6 +1205,25 @@ const restoreEmail = (emailId) => {
   font-weight: 600;
 }
 
+/* 스크롤바 스타일링 */
+.email-list-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.email-list-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.email-list-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.email-list-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 @media (max-width: 1200px) {
   .email-view {
     grid-template-columns: 240px 1fr;
@@ -1099,6 +1278,11 @@ const restoreEmail = (emailId) => {
   
   .action-btn {
     width: 100%;
+  }
+  
+  .pagination-controls {
+    flex-direction: column;
+    padding: 0.5rem;
   }
   
   /* Ensure tooltip stays within viewport on mobile */
