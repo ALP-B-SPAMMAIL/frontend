@@ -84,6 +84,7 @@
               <span class="email-time">{{ email.time }}</span>
             </div>
             <div class="email-sender-name">{{ email.sender }}</div>
+            <div class="email-address">{{ email.email }}</div>
             <div class="email-preview">{{ email.preview }}</div>
           </div>
           
@@ -110,6 +111,47 @@
     
     <!-- Email Detail -->
     <div class="email-detail" v-if="currentEmail">
+      <!-- 이메일 액션 버튼들 - 제목 위로 이동 -->
+      <div class="email-actions">
+        <!-- Not in Trash Can -->
+        <template v-if="currentFolder !== 'trash'">
+          <button class="action-btn reply-btn" @click="replyToCurrentEmail(currentEmail)">
+            <img src="@/assets/icons/reply.png" alt="Reply Icon" class="action-icon" />
+            <span>답장</span>
+          </button>
+          <button class="action-btn forward-btn">
+            <img src="@/assets/icons/forward.png" alt="Forward Icon" class="action-icon" />
+            <span>전달</span>
+          </button>
+          <button v-if="currentFolder === 'spam'" class="action-btn not-spam-btn" @click="markAsNotSpam(currentEmail.id)">
+            <img src="@/assets/icons/shield.png" alt="Shield Icon" class="action-icon" />
+            <span>스팸 아님</span>
+          </button>
+          <button v-else class="action-btn spam-btn" @click="markAsSpam(currentEmail.id)">
+            <img src="@/assets/icons/report.png" alt="Report Icon" class="action-icon" />
+            <span>스팸 신고</span>
+          </button>
+        </template>
+        
+        <!-- In Trash Can -->
+        <template v-else>
+          <button class="action-btn spam-btn" @click="markAsSpam(currentEmail.id)">
+            <img src="@/assets/icons/report.png" alt="Report Icon" class="action-icon" />
+            <span>스팸 신고</span>
+          </button>
+          <button class="action-btn restore-btn" @click="restoreEmail(currentEmail.id)">
+            <img src="@/assets/icons/restore.png" alt="Restore Icon" class="action-icon" />
+            <span>복구</span>
+          </button>
+        </template>
+        
+        <!-- 삭제 버튼은 모든 폴더에 표시 -->
+        <button class="action-btn delete-btn" @click="deleteEmail(currentEmail.id)">
+          <img src="@/assets/icons/trash.png" alt="Trash Icon" class="action-icon" />
+          <span>{{ currentFolder === 'trash' ? '영구 삭제' : '삭제' }}</span>
+        </button>
+      </div>
+      
       <div class="email-detail-header">
         <h2>{{ currentEmail.subject }}</h2>
       </div>
@@ -118,57 +160,15 @@
         <div class="sender-info">
           <span class="sender-avatar large">{{ currentEmail.sender.charAt(0) }}</span>
           <div>
-            <div class="sender-email">{{ currentEmail.sender }}</div>
+            <div class="sender-name">{{ currentEmail.sender }}</div>
+            <div class="sender-email">{{ currentEmail.email }}</div>          
           </div>
         </div>
         <div class="email-date">{{ currentEmail.time }}</div>
       </div>
       
-      <!-- 이메일 액션 버튼들을 여기로 이동 -->
-      <div class="email-actions">
-        <!-- Not in Trash Can -->
-        <template v-if="currentFolder !== 'trash'">
-          <button class="reply-btn" @click="replyToCurrentEmail(currentEmail)">
-            <img src="@/assets/icons/reply.png" alt="Reply Icon" class="mail-control-icon" />
-            <span>답장</span>
-          </button>
-          <button class="forward-btn">
-            <img src="@/assets/icons/forward.png" alt="Forward Icon" class="mail-control-icon" />
-            <span>전달</span>
-          </button>
-          <button v-if="currentFolder === 'spam'" class="not-spam-btn" @click="markAsNotSpam(currentEmail.id)">
-            <img src="@/assets/icons/shield.png" alt="Shield Icon" class="mail-control-icon" />
-            <span>스팸 아님</span>
-          </button>
-          <button v-else class="spam-btn" @click="markAsSpam(currentEmail.id)">
-            <img src="@/assets/icons/report.png" alt="Report Icon" class="mail-control-icon" />
-            <span>스팸 신고</span>
-          </button>
-        </template>
-        
-        <!-- In Trash Can -->
-        <template v-else>
-          <button class="spam-btn" @click="markAsSpam(currentEmail.id)">
-            <img src="@/assets/icons/report.png" alt="Report Icon" class="mail-control-icon" />
-            <span>스팸 신고</span>
-          </button>
-          <button class="restore-btn" @click="restoreEmail(currentEmail.id)">
-            <img src="@/assets/icons/restore.png" alt="Restore Icon" class="mail-control-icon" />
-            <span>복구</span>
-          </button>
-        </template>
-        
-        <!-- 삭제 버튼은 모든 폴더에 표시 -->
-        <button class="delete-btn" @click="deleteEmail(currentEmail.id)">
-          <img src="@/assets/icons/trash.png" alt="Trash Icon" class="mail-control-icon" />
-          <span>{{ currentFolder === 'trash' ? '영구 삭제' : '삭제' }}</span>
-        </button>
-      </div>
-      
       <div class="email-body" v-html="currentEmail.html"></div>
           
-      
-      
       <div v-if="currentEmail.aiSummary" class="ai-summary">
         <h3>
           <img src="@/assets/icons/ai.png" alt="AI Icon" class="mail-control-icon" />
@@ -246,74 +246,6 @@ const labels = [
   { id: 'bills', name: '청구서', color: '#f59e0b' }
 ];
 
-// const emails = ref([
-//   {
-//     id: 1,
-//     sender: '김철수',
-//     email: 'chulsoo.kim@example.com',
-//     subject: '프로젝트 미팅 일정 안내',
-//     preview: '안녕하세요, 다음 주 화요일 오후 2시에 프로젝트 미팅이 예정되어 있습니다.',
-//     body: '안녕하세요,\n\n다음 주 화요일 오후 2시에 프로젝트 미팅이 예정되어 있습니다. 회의실 A에서 진행될 예정이니 참석 부탁드립니다.\n\n회의 안건:\n1. 프로젝트 진행 상황 보고\n2. 다음 단계 계획 수립\n3. 예산 검토\n\n궁금한 점이 있으시면 연락 주세요.\n\n감사합니다.\n김철수 드림',
-//     time: '오전 10:23',
-//     date: '2023년 5월 15일 오전 10:23',
-//     read: false,
-//     folder: 'inbox',
-//     aiSummary: '화요일 오후 2시 회의실 A에서 프로젝트 미팅이 있습니다. 회의 안건은 진행 상황 보고, 계획 수립, 예산 검토입니다.'
-//   },
-//   {
-//     id: 2,
-//     sender: '이영희',
-//     email: 'younghee.lee@example.com',
-//     subject: '주간 보고서 제출 요청',
-//     preview: '안녕하세요, 이번 주 금요일까지 주간 보고서 제출 부탁드립니다.',
-//     body: '안녕하세요,\n\n이번 주 금요일까지 주간 보고서 제출 부탁드립니다. 지난 주와 동일한 양식으로 작성해 주시면 됩니다.\n\n제출 마감: 금요일 오후 6시\n제출 방법: 이메일 첨부\n\n협조해 주셔서 감사합니다.\n\n이영희 드림',
-//     time: '어제',
-//     date: '2023년 5월 14일 오후 4:15',
-//     read: true,
-//     folder: 'inbox',
-//     aiSummary: '금요일 오후 6시까지 주간 보고서를 이메일로 제출해야 합니다. 지난 주와 동일한 양식으로 작성하세요.'
-//   },
-//   {
-//     id: 3,
-//     sender: '박지민',
-//     email: 'jimin.park@example.com',
-//     subject: '신규 서비스 출시 안내',
-//     preview: '안녕하세요, 저희 회사의 신규 서비스가 다음 달 1일부터 출시됩니다.',
-//     body: '안녕하세요,\n\n저희 회사의 신규 서비스가 다음 달 1일부터 출시됩니다. 이번 서비스는 고객들의 요청을 반영하여 개발되었으며, 다음과 같은 특징이 있습니다:\n\n- 실시간 데이터 분석\n- 모바일 최적화 인터페이스\n- 클라우드 기반 저장 시스템\n\n자세한 내용은 첨부된 브로셔를 참고해 주세요.\n\n감사합니다.\n박지민 드림',
-//     time: '5월 12일',
-//     date: '2023년 5월 12일 오전 9:30',
-//     read: true,
-//     folder: 'inbox',
-//     aiSummary: '다음 달 1일부터 신규 서비스가 출시됩니다. 실시간 데이터 분석, 모바일 최적화, 클라우드 기반 저장 시스템이 특징입니다.'
-//   },
-//   {
-//     id: 4,
-//     sender: 'Amazon',
-//     email: 'no-reply@amazon.com',
-//     subject: '계정 보안 경고: 즉시 조치 필요',
-//     preview: '귀하의 계정에 비정상적인 로그인이 감지되었습니다. 지금 바로 확인하세요.',
-//     body: '안녕하세요,\n\n귀하의 Amazon 계정에 비정상적인 로그인이 감지되었습니다. 계정 보안을 위해 즉시 아래 링크를 클릭하여 비밀번호를 재설정해 주세요.\n\n[비밀번호 재설정하기](http://malicious-link.com)\n\n본 메일에 응답하지 않을 경우 계정이 24시간 내에 정지될 수 있습니다.\n\nAmazon 보안팀 드림',
-//     time: '5월 10일',
-//     date: '2023년 5월 10일 오후 2:45',
-//     read: false,
-//     folder: 'spam',
-//     aiSummary: '주의! 이 메일은 피싱 시도로 의심됩니다. Amazon을 사칭하여 비밀번호 재설정을 유도하고 있습니다. 링크를 클릭하지 마세요.'
-//   },
-//   {
-//     id: 5,
-//     sender: '은행 고객센터',
-//     email: 'support@bank-secure.com',
-//     subject: '귀하의 계좌가 제한되었습니다',
-//     preview: '귀하의 은행 계좌가 보안상의 이유로 제한되었습니다. 지금 바로 확인하세요.',
-//     body: '안녕하세요,\n\n귀하의 은행 계좌가 보안상의 이유로 제한되었습니다. 계좌 접근을 다시 활성화하려면 아래 링크를 통해 개인 정보를 확인해 주세요.\n\n[계좌 활성화하기](http://fake-bank.com)\n\n24시간 내에 조치하지 않으면 계좌가 영구 정지될 수 있습니다.\n\n은행 보안팀 드림',
-//     time: '5월 9일',
-//     date: '2023년 5월 9일 오전 8:15',
-//     read: true,
-//     folder: 'spam',
-//     aiSummary: '주의! 이 메일은 피싱 시도입니다. 은행을 사칭하여 개인정보를 요구하고 있습니다. 링크를 클릭하지 마세요.'
-//   }
-// ]);
-
 const emails = ref([]);
 
 // Reactive state
@@ -374,6 +306,42 @@ const selectFolder = (folderId) => {
   selectedEmail.value = null;
 };
 
+const parseMailSender = (mailSender) => {
+  if (!mailSender) return { name: 'Unknown Sender', email: '' };
+  
+  // "이름" <이메일> 형식 파싱 (따옴표가 있는 경우)
+  const quotedMatch = mailSender.match(/^"([^"]+)"\s*<(.+)>$/);
+  if (quotedMatch) {
+    return {
+      name: quotedMatch[1],
+      email: quotedMatch[2]
+    };
+  }
+  
+  // 이름 <이메일> 형식 파싱 (따옴표가 없는 경우)
+  const unquotedMatch = mailSender.match(/^([^<]+)\s*<(.+)>$/);
+  if (unquotedMatch) {
+    return {
+      name: unquotedMatch[1].trim(),
+      email: unquotedMatch[2]
+    };
+  }
+  
+  // 이메일만 있는 경우
+  if (mailSender.includes('@')) {
+    return {
+      name: mailSender.split('@')[0],
+      email: mailSender
+    };
+  }
+  
+  // 이름만 있는 경우
+  return {
+    name: mailSender,
+    email: ''
+  };
+};
+
 const fetchEmails = async () => {
   try {
     const rawMails = await api.getMailList(1);
@@ -382,16 +350,20 @@ const fetchEmails = async () => {
       return;
     }
 
-    emails.value = rawMails.map(mail => ({
-      id: mail.mailId,
-      sender: mail.mailSender || 'Unknown Sender',
-      subject: extractSubjectFromHtml(mail.mailHtmlContent) || '제목 없음',
-      preview: mail.mailContent?.slice(0, 100).replace(/\r\n|\n/g, ' ') || '미리보기 없음',
-      html: mail.mailHtmlContent || '본문 없음',
-      time: formatArrivedAt(mail.arrivedAt) || '시간 정보 없음',
-      folder: 'inbox',
-      read: false
-    }));
+    emails.value = rawMails.map(mail => {
+      const senderInfo = parseMailSender(mail.mailSender);
+      return {
+        id: mail.mailId,
+        sender: senderInfo.name,
+        email: senderInfo.email,
+        subject: mail.mailTitle || '제목 없음',
+        preview: mail.mailContent?.slice(0, 100).replace(/\r\n|\n/g, ' ') || '미리보기 없음',
+        html: mail.mailHtmlContent || '본문 없음',
+        time: formatArrivedAt(mail.arrivedAt) || '시간 정보 없음',
+        folder: 'inbox',
+        read: false
+      };
+    });
   } catch (error) {
     console.error('Error fetching emails:', error);
     emails.value = [];
@@ -879,66 +851,72 @@ const restoreEmail = (emailId) => {
   gap: 0.5rem;
 }
 
-.mail-control-icon {
-  width: 16px;
-  height: 16px;
+.action-icon {
+  width: 18px;
+  height: 18px;
   margin-right: 0.5rem;
   vertical-align: middle;
 }
 
+/* Redesigned Email Actions */
 .email-actions {
   display: flex;
-  gap: 0.5rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
 }
 
-.reply-btn,
-.forward-btn,
-.spam-btn,
-.not-spam-btn,
-.delete-btn,
-.restore-btn {
+.action-btn {
   display: flex;
   align-items: center;
-  padding: 0.5rem 0.75rem;
-  background-color: #f1f5f9;
-  border: none;
-  border-radius: 0.375rem;
-  color: #1e293b;
+  justify-content: center;
+  padding: 0.625rem 1rem;
+  background-color: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
   font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.reply-btn:hover,
-.forward-btn:hover {
-  background-color: #e2e8f0;
-  transform: translateY(-1px);
+/* 기본 상태는 무색 */
+.reply-btn:hover {
+  background-color: #f0f9ff;
+  color: #0369a1;
+  border-color: #e0f2fe;
 }
 
-.spam-btn:hover,
-.not-spam-btn:hover {
+.forward-btn:hover {
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border-color: #dcfce7;
+}
+
+.spam-btn:hover {
   background-color: #fef9c3;
   color: #ca8a04;
-  transform: translateY(-1px);
+  border-color: #fef08a;
+}
+
+.not-spam-btn:hover {
+  background-color: #f0f9ff;
+  color: #0369a1;
+  border-color: #e0f2fe;
 }
 
 .delete-btn:hover {
   background-color: #fee2e2;
   color: #dc2626;
-  transform: translateY(-1px);
+  border-color: #fecaca;
 }
 
 .restore-btn:hover {
   background-color: #e0f2fe;
   color: #0284c7;
-  transform: translateY(-1px);
-}
-
-.email-detail-actions span {
-  margin-left: 0.5rem;
+  border-color: #bae6fd;
 }
 
 .email-detail-info {
@@ -956,10 +934,13 @@ const restoreEmail = (emailId) => {
 }
 
 .sender-avatar.large {
-  width: 1.5rem;
-  height: 1.5rem;
-  font-size: 1.25rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1rem;
   margin-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sender-name {
@@ -980,17 +961,20 @@ const restoreEmail = (emailId) => {
 .email-body {
   flex: 1;
   overflow-y: auto;
-  padding: 1rem;
+  padding: 1.5rem;
   background-color: #ffffff;
   border-radius: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  color: #334155;
 }
 
 .ai-summary {
   background-color: #f0f9ff;
-  border-radius: 0.5rem;
-  padding: 1rem;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
   margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .ai-summary h3 {
@@ -1010,12 +994,14 @@ const restoreEmail = (emailId) => {
   margin: 0;
   font-size: 0.875rem;
   color: #0c4a6e;
+  line-height: 1.6;
 }
 
 .spam-info {
   background-color: #fff1f2;
-  border-radius: 0.5rem;
-  padding: 1rem;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .spam-info h3 {
@@ -1028,19 +1014,15 @@ const restoreEmail = (emailId) => {
 }
 
 .warning-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 0.5rem;
-}
-
-.spam-info h3 {
+  width: 18px;
+  height: 18px;
   margin-right: 0.5rem;
 }
 
 .spam-details {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .spam-detail-item {
@@ -1107,6 +1089,15 @@ const restoreEmail = (emailId) => {
   }
   
   .email-detail {
+    width: 100%;
+  }
+  
+  .email-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .action-btn {
     width: 100%;
   }
   
