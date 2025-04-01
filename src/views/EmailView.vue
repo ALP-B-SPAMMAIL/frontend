@@ -80,10 +80,10 @@
           </div>
           <div class="email-content">
             <div class="email-header">
-              <span class="email-sender-name">{{ email.sender }}</span>
+              <span class="email-subject">{{ email.subject }}</span>
               <span class="email-time">{{ email.time }}</span>
             </div>
-            <div class="email-subject">{{ email.subject }}</div>
+            <div class="email-sender-name">{{ email.sender }}</div>
             <div class="email-preview">{{ email.preview }}</div>
           </div>
           
@@ -644,7 +644,7 @@ const restoreEmail = (emailId) => {
   display: flex;
   flex-direction: column;
   border-right: 1px solid #e2e8f0;
-  max-width: 400px;
+  max-width: 450px;
 }
 
 .email-list-header {
@@ -761,7 +761,7 @@ const restoreEmail = (emailId) => {
 }
 
 .email-sender-name {
-  font-weight: 500;
+  font-weight: 350;
   color: #1e293b;
 }
 
@@ -850,13 +850,16 @@ const restoreEmail = (emailId) => {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .email-detail-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .email-detail-header h2 {
@@ -864,6 +867,7 @@ const restoreEmail = (emailId) => {
   font-size: 1.5rem;
   font-weight: 600;
   color: #1e293b;
+  word-break: break-word;
 }
 
 .email-detail-actions {
@@ -937,9 +941,9 @@ const restoreEmail = (emailId) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 1.5rem;
+  padding: 1rem 0;
   border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .sender-info {
@@ -970,11 +974,12 @@ const restoreEmail = (emailId) => {
 }
 
 .email-body {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #1e293b;
-  white-space: pre-line;
-  margin-bottom: 2rem;
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .ai-summary {
