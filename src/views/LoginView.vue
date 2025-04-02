@@ -11,14 +11,14 @@
       
       <form class="login-form" @submit.prevent="handleLogin">
         <div class="form-group">
-          <label for="email">이메일</label>
+          <label for="id">아이디</label>
           <div class="input-with-icon">
-            <img src="@/assets/icons/mail.png" alt="Email Icon" class="input-icon" width="18" height="18" />
+            <img src="@/assets/icons/id2.png" alt="ID Icon" class="input-icon" width="18" height="18" />
             <input 
-              type="email" 
-              id="email" 
-              v-model="email" 
-              placeholder="이메일 주소를 입력하세요" 
+              type="id" 
+              id="id" 
+              v-model="id" 
+              placeholder="아이디를 입력하세요" 
               class="form-input" 
               required
             />
@@ -62,17 +62,23 @@
 
 <script setup>
 import { ref } from 'vue';
+import api from '@/services/api';
 
-// Simple form state
-const email = ref('');
+const id = ref('');
 const password = ref('');
-const rememberMe = ref(false);
 const showPassword = ref(false);
 
-// Simple login handler (no actual functionality as requested)
-const handleLogin = () => {
-  console.log('Login attempt with:', { email: email.value, password: password.value, rememberMe: rememberMe.value });
-  // In a real app, this would call an API or authentication service
+const handleLogin = async () => {
+  try {
+    const response = await api.loginUser({
+      userFigureId: id.value,
+      password: password.value
+    });
+    console.log(response);
+  } catch (error) {
+    console.error('Login failed:', error);
+    alert('로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
+  }
 };
 </script>
 
@@ -107,12 +113,6 @@ const handleLogin = () => {
   align-items: center;
   justify-content: center;
   margin-bottom: 1.5rem;
-}
-
-.logo {
-  width: 2rem;
-  height: 2rem;
-  margin-right: 0.75rem;
 }
 
 .logo-text {
@@ -156,23 +156,13 @@ const handleLogin = () => {
   margin-bottom: 0.5rem;
 }
 
-.forgot-password {
-  font-size: 0.875rem;
-  color: #1e3a8a;
-  text-decoration: none;
-}
-
-.forgot-password:hover {
-  text-decoration: underline;
-}
-
 .input-with-icon {
   position: relative;
 }
 
 .input-icon {
   position: absolute;
-  left: 1rem;
+  left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   color: #64748b;
@@ -205,20 +195,6 @@ const handleLogin = () => {
   padding: 0;
 }
 
-.remember-me {
-  display: flex;
-  align-items: center;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  color: #1e293b;
-  font-size: 0.875rem;
-}
-
 .btn-primary {
   background-color: #1e3a8a;
   color: white;
@@ -237,65 +213,6 @@ const handleLogin = () => {
 .btn-full {
   width: 100%;
   padding: 0.875rem;
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  margin: 1.5rem 0;
-  color: #64748b;
-  font-size: 0.875rem;
-}
-
-.divider::before,
-.divider::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background-color: #e2e8f0;
-}
-
-.divider span {
-  padding: 0 1rem;
-}
-
-.social-login {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.btn-social {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-google {
-  background-color: #ffffff;
-  color: #1e293b;
-  border: 1px solid #e2e8f0;
-}
-
-.btn-google:hover {
-  background-color: #f8fafc;
-}
-
-.btn-kakao {
-  background-color: #fee500;
-  color: #191919;
-  border: none;
-}
-
-.btn-kakao:hover {
-  background-color: #fada0a;
 }
 
 .login-footer {

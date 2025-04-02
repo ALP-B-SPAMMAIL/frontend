@@ -492,15 +492,12 @@ const currentStep = ref(0);
 
 // Form data
 const formData = ref({
-  // Step 1: Basic information
   name: '',
   id: '',
   password: '',
   confirmPassword: '',
-  //timezone: 'Asia/Seoul',
   agreeTerms: false,
   
-  // Step 2: Mail server settings
   mailSettings: {
     protocol: 'imaps',
     server: '',
@@ -508,7 +505,6 @@ const formData = ref({
     password: ''
   },
   
-  // Step 3: Personal information
   personalInfo: {
     birthdate: '',
     gender: '',

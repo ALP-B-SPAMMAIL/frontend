@@ -249,14 +249,12 @@ const folderCounts = computed(() => {
     trash: 0
   };
   
-  // 일반 메일 수 계산
   emails.value.forEach(email => {
     if (counts[email.folder] !== undefined) {
       counts[email.folder]++;
     }
   });
   
-  // 스팸 메일 수 계산
   spamEmails.value.forEach(email => {
     if (counts[email.folder] !== undefined) {
       counts[email.folder]++;
@@ -304,7 +302,6 @@ const folderTitle = computed(() => {
 });
 
 const filteredEmails = computed(() => {
-  // 현재 폴더에 따라 적절한 이메일 목록 선택
   const emailList = currentFolder.value === 'spam' ? spamEmails.value : emails.value;
   
   if (!emailList) return [];
