@@ -184,9 +184,9 @@ export default {
     }
   },
 
-  async reportSpam(mailId, reportData) {
+  async reportSpam(mailId, reason) {
     try {
-      const response = await mailServerApi.post(`${mailId}/report`, reportData);
+      const response = await mailServerApi.get(`report?mailId=${mailId}&reason=${reason}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

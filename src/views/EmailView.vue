@@ -581,9 +581,7 @@ const markAsSpam = () => {
 const handleSpamReport = async (reportData) => {
   try {
     console.log(reportData);
-    await api.reportSpam(reportData.emailId, {
-      reason: reportData.reason
-    });
+    await api.reportSpam(reportData.emailId, reportData.reason);
     
     fetchEmails();
     showSpamReportModal.value = false;
