@@ -149,7 +149,7 @@ export default {
 
   async getMailList(userId) {
     try {
-      const response = await mailServerApi.get(`/${userId}`);
+      const response = await mailServerApi.get(`/users/${userId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -158,7 +158,7 @@ export default {
 
   async getSpamMailList(userId, page) {
     try {
-      const response = await mailServerApi.get(`/spams/${userId}?page=${page}`);
+      const response = await mailServerApi.get(`/users/${userId}/spams?page=${page}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -167,7 +167,7 @@ export default {
 
   async getNormalMailList(userId, page) {
     try {
-      const response = await mailServerApi.get(`/normals/${userId}?page=${page}`);
+      const response = await mailServerApi.get(`/users/${userId}/normals?page=${page}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -201,19 +201,25 @@ export default {
     }
   },
 
-  async sendMail(fromUserId, to, subject, content) {
+  async sendMail(fromUserId, sendMailDto) {
     try {
-      console.log(fromUserId, to, subject, content);
-      const response = await mailServerApi.get(`/send?fromUserId=${fromUserId}&to=${to}&subject=${encodeURIComponent(subject)}&content=${encodeURIComponent(content)}`);
+      const response = await mailServerApi.get(`/users/${fromUserId}/send`, {
+        params: {
+          to: sendMailDto.to,
+          subject: sendMailDto.subject,
+          content: sendMailDto.content
+        }
+      });
       return response.data;
     } catch (error) {
-      throw error.response?.data || error;
+      console.error('Error sending mail:', error);
+      throw error;
     }
   },
 
   async getTrashcanMails(userId, page) {
     try {
-      const response = await mailServerApi.get(`/trashcan/${userId}?page=${page}`);
+      const response = await mailServerApi.get(`/users/${userId}/trashcan?page=${page}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

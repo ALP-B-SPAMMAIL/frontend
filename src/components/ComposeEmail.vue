@@ -209,7 +209,8 @@ const sendEmail = async () => {
   try {
     const userStore = useUserStore();
     const fromUserId = userStore.userCode;
-    console.log(fromUserId, recipient.value, subject.value, message.value);
+    console.log('User ID from store:', fromUserId);
+    
     if (!fromUserId) {
       alert('로그인이 필요합니다.');
       return;
@@ -230,37 +231,22 @@ const sendEmail = async () => {
       return;
     }
     
-    // 모든 수신자를 한 번에 전송
-    const allRecipients = [...recipients.value,];
-    console.log(allRecipients);
-    // 중복 제거
-    const uniqueRecipients = [...new Set(allRecipients)];
-    
-    // 각 수신자에게 메일 전송
-    for (const recipient of uniqueRecipients) {
-      try {
-        await api.sendMail(
-          fromUserId,
-          recipient,
-          subject.value,
-          message.value
-        );
-      } catch (error) {
-        console.error(`Failed to send email to ${recipient}:`, error);
-        alert(`${recipient}에게 메일 전송에 실패했습니다.`);
-        return;
-      }
-    }
-    
-    emit('send', {
-      to: recipients.value,
-      cc: ccs.value,
+    // SendMailDto 형식에 맞게 데이터 구성
+    const sendMailDto = {
+      to: recipients.value[0], // 단일 수신자로 변경
       subject: subject.value,
-      message: message.value
-    });
+      content: message.value
+    };
     
-    alert('메일이 성공적으로 전송되었습니다.');
-    closeCompose();
+    try {
+      await api.sendMail(fromUserId, sendMailDto);
+      emit('send', sendMailDto);
+      alert('메일이 성공적으로 전송되었습니다.');
+      closeCompose();
+    } catch (error) {
+      console.error('Failed to send email:', error);
+      alert('메일 전송에 실패했습니다. 다시 시도해주세요.');
+    }
   } catch (error) {
     console.error('Failed to send email:', error);
     alert('메일 전송에 실패했습니다. 다시 시도해주세요.');
