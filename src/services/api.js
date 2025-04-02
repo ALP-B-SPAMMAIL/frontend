@@ -1,4 +1,5 @@
 import axios from 'axios';
+import localStorage from '@/services/localStorage';
 
 // axios.defaults.withCredentials = true;
 // const API_URL = 'http://172.30.1.45:8080';
@@ -19,6 +20,20 @@ const mailServerApi = axios.create({
     'Content-Type': 'application/json'
   },
 });
+
+// mailServerApi 요청 인터셉터 추가
+mailServerApi.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getToken();
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export default {
   async registerUser(userData) {
@@ -52,7 +67,7 @@ export default {
 
   async getMailList(userId) {
     try {
-      const response = await mailServerApi.get(`/mail/${userId}`);
+      const response = await mailServerApi.get(`/${userId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -61,7 +76,7 @@ export default {
 
   async getSpamMailList(userId, page) {
     try {
-      const response = await mailServerApi.get(`/mail/spams/${userId}?page=${page}`);
+      const response = await mailServerApi.get(`/spams/${userId}?page=${page}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -70,7 +85,7 @@ export default {
 
   async getNormalMailList(userId, page) {
     try {
-      const response = await mailServerApi.get(`/mail/normals/${userId}?page=${page}`);
+      const response = await mailServerApi.get(`/normals/${userId}?page=${page}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -79,7 +94,7 @@ export default {
 
   async deleteSpamFlag(mailId) {
     try {
-      const response = await mailServerApi.delete(`/mail/spams/${mailId}`);
+      const response = await mailServerApi.delete(`/spams/${mailId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

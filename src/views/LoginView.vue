@@ -80,7 +80,8 @@ const handleLogin = async () => {
     
     // 토큰 저장
     if (response.data.accessToken) {
-      localStorage.setUserSession(id.value, response.data.accessToken);
+      // localStorage.setUserSession(id.value, response.data.accessToken, response.data.userId);
+      localStorage.setUserSession(id.value, response.data.accessToken, 9);
       router.push('/inbox');
     }
   } catch (error) {
