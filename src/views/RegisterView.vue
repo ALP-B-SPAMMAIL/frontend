@@ -41,14 +41,14 @@
         </div>
         
         <div class="form-group">
-          <label for="email">이메일</label>
+          <label for="id">아이디</label>
           <div class="input-with-icon">
-            <img src="@/assets/icons/mail.png" alt="Email Icon" class="input-icon" width="18" height="18" />
+            <img src="@/assets/icons/id2.png" alt="Id Icon" class="input-icon" width="18" height="18" />
             <input 
-              type="email" 
-              id="email" 
-              v-model="formData.email" 
-              placeholder="이메일 주소를 입력하세요" 
+              type="text" 
+              id="id" 
+              v-model="formData.id" 
+              placeholder="아이디를 입력하세요" 
               class="form-input" 
               required
             />
@@ -494,7 +494,7 @@ const currentStep = ref(0);
 const formData = ref({
   // Step 1: Basic information
   name: '',
-  email: '',
+  id: '',
   password: '',
   confirmPassword: '',
   //timezone: 'Asia/Seoul',
@@ -648,7 +648,7 @@ const handleRegister = async () => {
     }
 
     const payload = {
-      email: formData.value.email,
+      userFigureId: formData.value.id,
       name: formData.value.name,
       job: formData.value.personalInfo.occupation,
       gender: formData.value.personalInfo.gender,
@@ -897,7 +897,7 @@ const handleRegister = async () => {
 
 .input-icon {
   position: absolute;
-  left: 1rem;
+  left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   color: #64748b;

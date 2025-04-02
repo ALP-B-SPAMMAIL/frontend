@@ -38,16 +38,6 @@
           </li>
         </ul>
       </nav>
-      
-      <div class="sidebar-section">
-        <h3>라벨</h3>
-        <ul class="label-list">
-          <li v-for="label in labels" :key="label.id" :style="{ color: label.color }">
-            <span class="label-dot" :style="{ backgroundColor: label.color }"></span>
-            <span>{{ label.name }}</span>
-          </li>
-        </ul>
-      </div>
     </div>
     
     <div class="email-list">
@@ -275,13 +265,6 @@ const folderCounts = computed(() => {
   
   return counts;
 });
-
-const labels = [
-  { id: 'work', name: '업무', color: '#2563eb' },
-  { id: 'personal', name: '개인', color: '#10b981' },
-  { id: 'important', name: '중요', color: '#ef4444' },
-  { id: 'bills', name: '청구서', color: '#f59e0b' }
-];
 
 const emails = ref([]);
 const spamEmails = ref([]);
@@ -520,15 +503,6 @@ const formatArrivedAt = (arrivedAt) => {
   }
 };
 
-// const extractSubjectFromHtml = (html) => {
-//   // 예: <div style="font-size: 24px;">로그인에 사용되는 앱 비밀번호가 삭제됨 </div>
-//   const match = html?.match(/<div[^>]*font-size:\s*24px[^>]*>(.*?)<\/div>/i);
-//   if (match && match[1]) {
-//     return match[1].trim();
-//   }
-//   return '(제목 없음)';
-// };
-
 // 페이지 이동 함수
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
@@ -756,38 +730,6 @@ const restoreEmail = (emailId) => {
   font-size: 0.75rem;
   padding: 0.125rem 0.375rem;
   border-radius: 1rem;
-}
-
-.sidebar-section {
-  padding: 1rem;
-  border-top: 1px solid #e2e8f0;
-}
-
-.sidebar-section h3 {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #64748b;
-  margin: 0 0 0.75rem 0;
-}
-
-.label-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.label-list li {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 0;
-  font-size: 0.875rem;
-}
-
-.label-dot {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 50%;
-  margin-right: 0.5rem;
 }
 
 /* Email List */
