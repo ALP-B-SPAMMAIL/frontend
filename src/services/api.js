@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+// axios.defaults.withCredentials = true;
 // const API_URL = 'http://172.30.1.45:8080';
-const MAIL_SERVER_URL = 'http://localhost:8083'; //mail-server
+const API_URL = 'http://whowhomail.kro.kr';
+const MAIL_SERVER_URL = API_URL + '/mail'; //mail-server
 const AUTH_SERVER_URL = 'http://4.230.154.202';
 
 const authServerApi = axios.create({
@@ -31,7 +33,7 @@ export default {
   async loginUser(userData) {
     try {
       const response = await authServerApi.post('/auth/sign-in', userData);
-      return response.data;
+      return response;
     } catch (error) {
       throw error.response?.data || error;
     }
