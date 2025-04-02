@@ -183,8 +183,6 @@
         <div class="email-date">{{ currentEmail.time }}</div>
       </div>
       
-      <div class="email-body" v-html="currentEmail.html"></div>
-          
       <div v-if="currentEmail.aiSummary" class="ai-summary">
         <h3>
           <img src="@/assets/icons/ai.png" alt="AI Icon" class="mail-control-icon" width="18" height="18"/>
@@ -193,6 +191,8 @@
         <p>{{ currentEmail.aiSummary }}</p>
       </div>
       
+      <div class="email-body" v-html="currentEmail.html"></div>
+          
       <div v-if="currentFolder === 'spam' && spamInfo" class="spam-info">
         <h3>
           <img src="@/assets/icons/warning_red.png" alt="Warning Icon" class="warning-icon" />
