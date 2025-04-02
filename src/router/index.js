@@ -5,6 +5,7 @@ import RegisterView from '@/views/RegisterView.vue';
 import EmailView from '@/views/EmailView.vue';
 import SpamInfoView from '@/views/SpamInfoView.vue';
 import SettingsView from '@/views/SettingsView.vue';
+import InitailizeView from '@/views/InitializeView.vue';
 import { useUserStore } from '@/stores/user';
 
 const router = createRouter({
@@ -23,6 +24,11 @@ const router = createRouter({
       path: '/login',
       name: 'Login',
       component: LoginView
+    },
+    {
+      path: '/initialize',
+      name: 'Initialize',
+      component: InitailizeView
     },
     {
       path: '/register',

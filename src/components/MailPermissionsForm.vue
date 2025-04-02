@@ -7,6 +7,10 @@
         </p>
       </div>
       
+      <div v-if="error" class="error-message">
+        {{ error }}
+      </div>
+      
       <div class="form-container">
         <div class="form-group">
           <label for="protocol">프로토콜</label>
@@ -17,7 +21,7 @@
                 id="protocol-imaps" 
                 name="protocol" 
                 value="imaps" 
-                v-model="mailSettings.protocol"
+                v-model="mailSettings.protocolType"
               />
               <span>IMAPS</span>
             </label>
@@ -27,7 +31,7 @@
                 id="protocol-pop3" 
                 name="protocol" 
                 value="pop3" 
-                v-model="mailSettings.protocol"
+                v-model="mailSettings.protocolType"
               />
               <span>POP3</span>
             </label>
@@ -42,14 +46,11 @@
         <div class="form-group">
           <label for="server">메일 서버 주소</label>
           <div class="input-with-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
-              <rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect>
-              <path d="M22 6l-10 7L2 6"></path>
-            </svg>
+            <img src="@/assets/icons/server.png" alt="mail-server" class="input-icon" width="16" height="16">
             <input 
               type="text" 
               id="server" 
-              v-model="mailSettings.server" 
+              v-model="mailSettings.serverAddress" 
               placeholder="예: imap.gmail.com 또는 pop.gmail.com" 
               class="form-input"
             />
@@ -62,14 +63,11 @@
         <div class="form-group">
           <label for="email">이메일 주소</label>
           <div class="input-with-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-              <polyline points="22,6 12,13 2,6"></polyline>
-            </svg>
+            <img src="@/assets/icons/mail.png" alt="mail-email" class="input-icon" width="16" height="16">
             <input 
               type="email" 
               id="email" 
-              v-model="mailSettings.email" 
+              v-model="mailSettings.emailAddress" 
               placeholder="이메일 주소를 입력하세요" 
               class="form-input"
             />
@@ -82,14 +80,11 @@
         <div class="form-group">
           <label for="app-password">앱 비밀번호</label>
           <div class="input-with-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
+            <img src="@/assets/icons/lock.png" alt="mail-password" class="input-icon" width="16" height="16">
             <input 
               :type="showPassword ? 'text' : 'password'" 
               id="app-password" 
-              v-model="mailSettings.password" 
+              v-model="mailSettings.emailPassword" 
               placeholder="앱 비밀번호를 입력하세요" 
               class="form-input"
             />
@@ -98,14 +93,8 @@
               class="password-toggle" 
               @click="showPassword = !showPassword"
             >
-              <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                <line x1="1" y1="1" x2="23" y2="23"></line>
-              </svg>
+              <img v-if="showPassword" src="@/assets/icons/showpw.png" alt="show-password" width="16" height="16">
+              <img v-else src="@/assets/icons/hidepw.png" alt="hide-password" width="16" height="16">
             </button>
           </div>
           <p class="form-help">
@@ -115,8 +104,11 @@
         </div>
         
         <div class="form-actions">
-          <button class="btn-secondary" @click="resetForm">취소</button>
-          <button class="btn-primary" @click="saveSettings" :disabled="!isFormValid">저장</button>
+          <button class="btn-secondary" @click="resetForm" :disabled="isLoading">취소</button>
+          <button class="btn-primary" @click="saveSettings" :disabled="!isFormValid || isLoading">
+            <span v-if="isLoading" class="loading-spinner"></span>
+            {{ isLoading ? '저장 중...' : '저장' }}
+          </button>
         </div>
       </div>
       
@@ -167,12 +159,25 @@
   <script setup>
   import { ref, computed } from 'vue';
   
+  const props = defineProps({
+    isLoading: {
+      type: Boolean,
+      default: false
+    },
+    error: {
+      type: String,
+      default: null
+    }
+  });
+  
+  const emit = defineEmits(['save-settings']);
+  
   // Mail settings form data
   const mailSettings = ref({
-    protocol: 'imaps',
-    server: '',
-    email: '',
-    password: ''
+    protocolType: 'imaps',
+    serverAddress: '',
+    emailAddress: '',
+    emailPassword: ''
   });
   
   const originalSettings = { ...mailSettings.value };
@@ -182,10 +187,10 @@
   // Form validation
   const isFormValid = computed(() => {
     return (
-      mailSettings.value.protocol &&
-      mailSettings.value.server &&
-      mailSettings.value.email &&
-      mailSettings.value.password
+      mailSettings.value.protocolType &&
+      mailSettings.value.serverAddress &&
+      mailSettings.value.emailAddress &&
+      mailSettings.value.emailPassword
     );
   });
   
@@ -195,19 +200,8 @@
   };
   
   const saveSettings = () => {
-    if (!isFormValid.value) return;
-    
-    // Here you would typically save the settings to your backend
-    console.log('Saving mail settings:', mailSettings.value);
-    
-    // Show success message
-    alert('메일 서버 설정이 저장되었습니다.');
-    
-    // Update original settings to reflect saved state
-    originalSettings.protocol = mailSettings.value.protocol;
-    originalSettings.server = mailSettings.value.server;
-    originalSettings.email = mailSettings.value.email;
-    originalSettings.password = mailSettings.value.password;
+    if (!isFormValid.value || props.isLoading) return;
+    emit('save-settings', mailSettings.value);
   };
   </script>
   
@@ -284,7 +278,7 @@
   
   .input-icon {
     position: absolute;
-    left: 1rem;
+    left: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
     color: #64748b;
@@ -506,4 +500,36 @@
         width: 100%; /* 모바일에서는 버튼 전체 너비 */
     }
 }
+  
+  .error-message {
+    background-color: #fee2e2;
+    color: #dc2626;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.6s linear infinite;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
   </style>

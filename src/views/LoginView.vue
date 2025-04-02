@@ -84,10 +84,14 @@ const handleLogin = async () => {
       userStore.setUserSession(
         id.value,
         response.data.accessToken,
-        //response.data.userId
-        9
+        response.data.userId
       );
-      router.push('/inbox');
+      const mailInitInfo = await api.getMailInfoInitialized(response.data.userId);
+      if (!mailInitInfo.initialized) {
+        alert("메일 권한 설정 페이지로 이동합니다.");
+        router.push('/initialize');
+      }
+      else router.push('/inbox');
     }
   } catch (error) {
     console.error('Login failed:', error);

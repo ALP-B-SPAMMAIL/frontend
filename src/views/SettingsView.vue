@@ -103,7 +103,11 @@
       <!-- Mail Permissions Section -->
       <div v-if="activeSection === 'permissions'" class="settings-section">
         <h2 class="section-title">메일 권한 설정</h2>
-        <MailPermissionsForm />
+        <MailPermissionsForm 
+          @save-settings="handleSaveMailSettings"
+          :isLoading="isMailSettingsLoading"
+          :error="mailSettingsError"
+        />
       </div>
       
       <!-- Account Deletion Section -->
@@ -171,11 +175,15 @@ import { useRouter } from 'vue-router';
 import MailPermissionsForm from '@/components/MailPermissionsForm.vue';
 import api from '@/services/api';
 import localStorageUtil from '@/services/localStorage';
+import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
+const isMailSettingsLoading = ref(false);
+const mailSettingsError = ref(null);
+const userStore = useUserStore();
 
 const settingsSections = [
-  { id: 'personal', name: '개인 정보 수정' },
+  // { id: 'personal', name: '개인 정보 수정' },
   { id: 'password', name: '비밀번호 변경' },
   { id: 'permissions', name: '메일 권한 설정' },
   { id: 'delete', name: '회원 탈퇴' }
@@ -312,6 +320,28 @@ const confirmDelete = async () => {
       alert('계정 삭제에 실패했습니다: ' + (error.message || '알 수 없는 오류가 발생했습니다'));
       console.error('계정 삭제 오류:', error);
     }
+  }
+};
+
+const handleSaveMailSettings = async (settings) => {
+  try {
+    isMailSettingsLoading.value = true;
+    mailSettingsError.value = null;
+    
+    // const userId = userStore.userCode;
+    
+    // API 호출하여 메일 설정 저장
+    await api.updateMailInfo({
+      userId: userStore.userCode,
+      ...settings
+    });
+    
+    alert('메일 설정이 성공적으로 저장되었습니다.');
+  } catch (err) {
+    mailSettingsError.value = err.message || '메일 설정 저장 중 오류가 발생했습니다.';
+    console.error('Error saving mail settings:', err);
+  } finally {
+    isMailSettingsLoading.value = false;
   }
 };
 </script>

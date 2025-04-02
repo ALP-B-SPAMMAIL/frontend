@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { useUserStore } from '@/stores/user';
 
-// axios.defaults.withCredentials = true;
-// const API_URL = 'http://172.30.1.45:8080';
 const API_URL = 'https://whowhomail.kro.kr';
 const MAIL_SERVER_URL = API_URL + '/mail'; //mail-server
 const AUTH_SERVER_URL = API_URL + '/auth'; //auth-server
@@ -71,6 +69,15 @@ export default {
   async updateMailInfo(mailData) {
     try {
       const response = await monitoringServerApi.post(`/monitoring`, mailData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  async getMailInfoInitialized(userId) {
+    try {
+      const response = await monitoringServerApi.get(`/${userId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

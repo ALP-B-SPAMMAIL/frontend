@@ -221,11 +221,11 @@
         
         <div class="form-navigation">
           <button type="button" class="btn-secondary" @click="prevStep">이전</button>
-          <button type="button" class="btn-primary" @click="handleRegister">다음</button>
+          <button type="button" class="btn-primary" @click="handleRegister">완료</button>
         </div>
       </div>
       
-      <!-- Step 3: Mail Server Settings -->
+      <!-- Step 3: Mail Server Settings
       <div v-if="currentStep === 2" class="register-form">
         <div class="form-group">
           <label for="protocol">프로토콜</label>
@@ -320,7 +320,7 @@
           <button type="button" class="btn-primary" @click="handleMailInfo">회원가입 완료</button>
         </div>
       </div>
-      
+       -->
       <div class="register-footer">
         <p>이미 계정이 있으신가요? <router-link to="/login" class="login-link">로그인</router-link></p>
       </div>
@@ -489,7 +489,8 @@ const router = useRouter();
 // const userStore = useUserStore();
 
 // Step management
-const steps = ['기본 정보', '추가 정보', '메일 서버 설정'];
+const steps = ['기본 정보', '추가 정보'];
+// const steps = ['기본 정보', '추가 정보', '메일 서버 설정'];
 const currentStep = ref(0);
 
 // Form data
@@ -661,9 +662,10 @@ const handleRegister = async () => {
     const result = await api.registerUser(payload);
     console.log('회원가입 성공:', result);
     userCode.value = result.userId;
-    alert('회원가입이 완료되었습니다. 메일 권한 설정으로 이동합니다.');
+    alert('회원가입이 완료되었습니다.');
+    router.push('/login');
     // 회원가입 성공 시 Step 3로 이동
-    currentStep.value = 2;
+    // currentStep.value = 2;
   } catch (error) {
     console.error('회원가입 실패:', error);
     alert(`회원가입 실패: ${error.message || '서버 오류'}`);
