@@ -147,8 +147,86 @@
         </div>
       </form>
       
-      <!-- Step 2: Mail Server Settings -->
+      <!-- Step 2: Personal Information -->
       <div v-if="currentStep === 1" class="register-form">
+        <div class="form-group">
+          <label for="birthdate">생년월일</label>
+          <div class="date-select-group">
+            <div class="date-select">
+              <select v-model="birthYear" class="form-select date-part" @change="updateBirthdate">
+                <option value="" disabled>년도</option>
+                <option v-for="year in years" :key="year" :value="year">{{ year }}년</option>
+              </select>
+            </div>
+            <div class="date-select">
+              <select v-model="birthMonth" class="form-select date-part" @change="updateBirthdate">
+                <option value="" disabled>월</option>
+                <option v-for="month in 12" :key="month" :value="month.toString().padStart(2, '0')">
+                  {{ month }}월
+                </option>
+              </select>
+            </div>
+            <div class="date-select">
+              <select v-model="birthDay" class="form-select date-part" @change="updateBirthdate">
+                <option value="" disabled>일</option>
+                <option v-for="day in 31" :key="day" :value="day.toString().padStart(2, '0')">
+                  {{ day }}일
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="gender">성별</label>
+          <div class="gender-select">
+            <select v-model="gender" class="form-select" @change="updateGender" id="gender">
+              <option value="" disabled selected>성별을 선택하세요</option>
+              <option value="M">남성</option>
+              <option value="F">여성</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="occupation">직업</label>
+          <div class="input-with-icon">
+            <img src="@/assets/icons/briefcase.png" alt="Briefcase Icon" class="input-icon" width="18" height="18" />
+            <input 
+              type="text" 
+              id="occupation" 
+              v-model="formData.personalInfo.occupation" 
+              placeholder="직업을 입력하세요" 
+              class="form-input" 
+            />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="interests">관심사</label>
+          <div class="input-with-icon">
+            <img src="@/assets/icons/heart.png" alt="Heart Icon" class="input-icon" width="18" height="18" />
+            <input 
+              type="text" 
+              id="interests" 
+              v-model="formData.personalInfo.interests" 
+              placeholder="관심사를 입력하세요 (예: 여행, 독서, 음악)" 
+              class="form-input" 
+            />
+          </div>
+          <p class="form-help">
+            여러 관심사는 쉼표(,)로 구분하여 입력하세요.
+          </p>
+        </div>
+        
+        <div class="form-navigation">
+          <button type="button" class="btn-secondary" @click="prevStep">이전</button>
+          <button type="button" class="btn-primary" @click="handleRegister">다음</button>
+        </div>
+      </div>
+      
+      <!-- Step 3: Mail Server Settings -->
+      <div v-if="currentStep === 2" class="register-form">
         <div class="form-group">
           <label for="protocol">프로토콜</label>
           <div class="radio-group">
@@ -234,84 +312,6 @@
           <p class="form-help">
             일반 계정 비밀번호가 아닌 메일 서비스에서 제공하는 앱 비밀번호를 입력하세요.
             <a href="#" class="help-link" @click.prevent="showAppPasswordHelp = true">앱 비밀번호란?</a>
-          </p>
-        </div>
-        
-        <div class="form-navigation">
-          <button type="button" class="btn-secondary" @click="prevStep">이전</button>
-          <button type="button" class="btn-primary" @click="nextStep">다음</button>
-        </div>
-      </div>
-      
-      <!-- Step 3: Personal Information -->
-      <div v-if="currentStep === 2" class="register-form">
-        <div class="form-group">
-          <label for="birthdate">생년월일</label>
-          <div class="date-select-group">
-            <div class="date-select">
-              <select v-model="birthYear" class="form-select date-part" @change="updateBirthdate">
-                <option value="" disabled>년도</option>
-                <option v-for="year in years" :key="year" :value="year">{{ year }}년</option>
-              </select>
-            </div>
-            <div class="date-select">
-              <select v-model="birthMonth" class="form-select date-part" @change="updateBirthdate">
-                <option value="" disabled>월</option>
-                <option v-for="month in 12" :key="month" :value="month.toString().padStart(2, '0')">
-                  {{ month }}월
-                </option>
-              </select>
-            </div>
-            <div class="date-select">
-              <select v-model="birthDay" class="form-select date-part" @change="updateBirthdate">
-                <option value="" disabled>일</option>
-                <option v-for="day in 31" :key="day" :value="day.toString().padStart(2, '0')">
-                  {{ day }}일
-                </option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="gender">성별</label>
-          <div class="gender-select">
-            <select v-model="gender" class="form-select" @change="updateGender" id="gender">
-              <option value="" disabled selected>성별을 선택하세요</option>
-              <option value="M">남성</option>
-              <option value="F">여성</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="occupation">직업</label>
-          <div class="input-with-icon">
-            <img src="@/assets/icons/briefcase.png" alt="Briefcase Icon" class="input-icon" width="18" height="18" />
-            <input 
-              type="text" 
-              id="occupation" 
-              v-model="formData.personalInfo.occupation" 
-              placeholder="직업을 입력하세요" 
-              class="form-input" 
-            />
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="interests">관심사</label>
-          <div class="input-with-icon">
-            <img src="@/assets/icons/heart.png" alt="Heart Icon" class="input-icon" width="18" height="18" />
-            <input 
-              type="text" 
-              id="interests" 
-              v-model="formData.personalInfo.interests" 
-              placeholder="관심사를 입력하세요 (예: 여행, 독서, 음악)" 
-              class="form-input" 
-            />
-          </div>
-          <p class="form-help">
-            여러 관심사는 쉼표(,)로 구분하여 입력하세요.
           </p>
         </div>
         
@@ -487,7 +487,7 @@ import api from '@/services/api';
 const router = useRouter();
 
 // Step management
-const steps = ['기본 정보', '메일 서버 설정', '추가 정보'];
+const steps = ['기본 정보', '추가 정보', '메일 서버 설정'];
 const currentStep = ref(0);
 
 // Form data
@@ -658,11 +658,13 @@ const handleRegister = async () => {
     const result = await api.registerUser(payload);
     console.log('회원가입 성공:', result);
 
-    alert('회원가입이 완료되었습니다!');
-    router.push('/login');
+    // 회원가입 성공 시 Step 3로 이동
+    currentStep.value = 2;
   } catch (error) {
     console.error('회원가입 실패:', error);
     alert(`회원가입 실패: ${error.message || '서버 오류'}`);
+    // 회원가입 실패 시 Step 1로 이동
+    currentStep.value = 0;
   }
 };
 </script>

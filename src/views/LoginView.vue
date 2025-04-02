@@ -63,10 +63,13 @@
 <script setup>
 import { ref } from 'vue';
 import api from '@/services/api';
+import { useRouter } from 'vue-router';
+import localStorage from '@/services/localStorage';
 
 const id = ref('');
 const password = ref('');
 const showPassword = ref(false);
+const router = useRouter();
 
 const handleLogin = async () => {
   try {
@@ -74,7 +77,12 @@ const handleLogin = async () => {
       userFigureId: id.value,
       password: password.value
     });
-    console.log(response);
+    
+    // 토큰 저장
+    if (response.data.accessToken) {
+      localStorage.setUserSession(id.value, response.data.accessToken);
+      router.push('/inbox');
+    }
   } catch (error) {
     console.error('Login failed:', error);
     alert('로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
