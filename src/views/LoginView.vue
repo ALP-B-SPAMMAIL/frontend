@@ -79,7 +79,7 @@ const handleLogin = async () => {
       password: password.value
     });
     
-    // 토큰 저장
+    // jwt token
     if (response.data.accessToken) {
       userStore.setUserSession(
         id.value,

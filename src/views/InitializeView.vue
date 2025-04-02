@@ -9,7 +9,6 @@
           <p class="initialized-subtitle">WhoWhoMail을 사용하기 위한 메일 서버 설정을 완료해주세요.</p>
         </div>
         
-        <!-- Mail Permissions Form -->
         <div class="mail-permissions-form-container">
           <MailPermissionsForm 
             @save-settings="handleSaveSettings" 
@@ -37,16 +36,12 @@
     try {
       isLoading.value = true;
       error.value = null;
-
-      // console.log(settings);
       
-      // API 호출하여 메일 설정 저장
       await api.updateMailInfo({
         userId: userStore.userCode,
         ...settings
       });
       
-      // 성공적으로 저장되면 대시보드로 이동
       router.push('/inbox');
     } catch (err) {
       error.value = err.message || '메일 설정 저장 중 오류가 발생했습니다.';

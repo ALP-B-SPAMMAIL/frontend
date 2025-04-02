@@ -184,7 +184,6 @@
   const showPassword = ref(false);
   const showAppPasswordHelp = ref(false);
   
-  // Form validation
   const isFormValid = computed(() => {
     return (
       mailSettings.value.protocolType &&
@@ -194,7 +193,6 @@
     );
   });
   
-  // Methods
   const resetForm = () => {
     mailSettings.value = { ...originalSettings };
   };
