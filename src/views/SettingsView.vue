@@ -302,19 +302,17 @@ const confirmDelete = async () => {
   
   if (confirm('정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
     try {
-      // 로그인 시 localStorage 연결?
-      const userId = localStorageUtil.getUserId();
+      const userId = userStore.userCode;
       
-      await api.deleteUser(userId, {
-        password: deleteAccount.value.password
-      });
+      const response = await api.deleteUser(userId);
+      // const response = await api.deleteUser(userId, {
+      //   password: deleteAccount.value.password
+      // });
       
+      console.log(response);
       alert('계정이 성공적으로 삭제되었습니다.');
       
-      // 로그아웃 처리 (로컬 스토리지 정리)
-      localStorage.removeItem('userId');
-      localStorage.removeItem('token');
-      
+      userStore.logout();
       router.push('/welcome');
     } catch (error) {
       alert('계정 삭제에 실패했습니다: ' + (error.message || '알 수 없는 오류가 발생했습니다'));

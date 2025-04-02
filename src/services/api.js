@@ -5,6 +5,29 @@ const API_URL = 'https://whowhomail.kro.kr';
 const MAIL_SERVER_URL = API_URL + '/mail'; //mail-server
 const AUTH_SERVER_URL = API_URL + '/auth'; //auth-server
 const MONITORING_SERVER_URL = API_URL + '/monitoring'; //monitoring-server
+const USER_SERVER_URL = API_URL + '/user'; //user-server
+
+const userServerApi = axios.create({
+  baseURL: USER_SERVER_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  },
+});
+
+userServerApi.interceptors.request.use(
+  (config) => {
+    const userStore = useUserStore();
+    const token = userStore.token;
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 
 const authServerApi = axios.create({
     baseURL: AUTH_SERVER_URL,
@@ -56,6 +79,8 @@ monitoringServerApi.interceptors.request.use(
   }
 );
 
+
+
 export default {
   async registerUser(userData) {
     try {
@@ -93,16 +118,24 @@ export default {
     }
   },
 
-  async deleteUser(userId, userData) {
+  async deleteUser(userId) {
     try {
-      const response = await authServerApi.delete(`/user/delete/${userId}`, {
-        data: userData
-      });
+      const response = await userServerApi.delete(`/delete/${userId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   },
+  // async deleteUser(userId, userData) {
+  //   try {
+  //     const response = await userServerApi.delete(`/delete/${userId}`, {
+  //       data: userData
+  //     });
+  //     return response.data;
+  //   } catch (error) {
+  //     throw error.response?.data || error;
+  //   }
+  // },
 
   async getMailList(userId) {
     try {
