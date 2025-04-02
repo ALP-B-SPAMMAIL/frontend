@@ -3,9 +3,9 @@ import { useUserStore } from '@/stores/user';
 
 // axios.defaults.withCredentials = true;
 // const API_URL = 'http://172.30.1.45:8080';
-const API_URL = 'http://whowhomail.kro.kr';
+const API_URL = 'https://whowhomail.kro.kr';
 const MAIL_SERVER_URL = API_URL + '/mail'; //mail-server
-const AUTH_SERVER_URL = 'http://4.230.154.202';
+const AUTH_SERVER_URL = 'https://4.230.154.202';
 
 const authServerApi = axios.create({
     baseURL: AUTH_SERVER_URL,
