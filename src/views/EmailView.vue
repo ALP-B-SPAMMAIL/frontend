@@ -191,8 +191,8 @@
           
       <div v-if="currentEmail.aiSummary" class="ai-summary">
         <h3>
-          <img src="@/assets/icons/ai.png" alt="AI Icon" class="mail-control-icon" />
-          AI 요약
+          <img src="@/assets/icons/ai.png" alt="AI Icon" class="mail-control-icon" width="18" height="18"/>
+          <span class="ai-title">AI 요약</span>
         </h3>
         <p>{{ currentEmail.aiSummary }}</p>
       </div>
@@ -1027,14 +1027,13 @@ const restoreEmail = (emailId) => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 
 .email-detail-header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #1e293b;
   word-break: break-word;
@@ -1046,9 +1045,9 @@ const restoreEmail = (emailId) => {
 }
 
 .action-icon {
-  width: 18px;
-  height: 18px;
-  margin-right: 0.5rem;
+  width: 16px;
+  height: 16px;
+  margin-right: 0.375rem;
   vertical-align: middle;
 }
 
@@ -1056,16 +1055,16 @@ const restoreEmail = (emailId) => {
 .email-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  padding-bottom: 1.25rem;
-  margin-bottom: 0.5rem;
+  gap: 0.25rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .action-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.625rem 1rem;
+  padding: 0.375rem 0.625rem;
   background-color: #f8fafc;
   color: #64748b;
   border: 1px solid #e2e8f0;
@@ -1117,9 +1116,8 @@ const restoreEmail = (emailId) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 0;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 1rem;
+  padding: 0.25rem 0;
+  margin-bottom: 0.5rem;
 }
 
 .sender-info {
@@ -1128,10 +1126,10 @@ const restoreEmail = (emailId) => {
 }
 
 .sender-avatar.large {
-  width: 2.5rem;
-  height: 2.5rem;
-  font-size: 1rem;
-  margin-right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.875rem;
+  margin-right: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1140,25 +1138,26 @@ const restoreEmail = (emailId) => {
 .sender-name {
   font-weight: 500;
   color: #1e293b;
+  font-size: 0.875rem;
 }
 
 .sender-email {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #64748b;
 }
 
 .email-date {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #64748b;
 }
 
 .email-body {
   flex: 1;
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: 1rem;
   background-color: #ffffff;
   border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   line-height: 1.6;
   color: #334155;
 }
@@ -1180,8 +1179,8 @@ const restoreEmail = (emailId) => {
   margin: 0 0 0.75rem 0;
 }
 
-.ai-summary h3 svg {
-  margin-right: 0.5rem;
+.ai-title {
+  margin-left: 0.5rem;
 }
 
 .ai-summary p {

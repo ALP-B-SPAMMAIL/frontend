@@ -73,9 +73,9 @@ onMounted(() => {
 
 <style scoped>
 .kt-logo {
-  width: 40px;
-  height: 25px;
-  margin-right: 10px;
+  width: 32px;
+  height: 20px;
+  margin-right: 8px;
   display: block;
 }
 .logo-container {
@@ -84,7 +84,7 @@ onMounted(() => {
 }
 .logo {
   color: #1e3a8a;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
 }
@@ -99,7 +99,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: sticky;
@@ -118,7 +118,7 @@ onMounted(() => {
 
 .logo {
   color: #1e3a8a;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
 }
@@ -169,7 +169,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.375rem;
   border-radius: 0.375rem;
 }
 
@@ -186,16 +186,16 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 1.75rem;
+  height: 1.75rem;
   background-color: #e2e8f0;
   border-radius: 50%;
 }
 
 .user-icon {
   color: #1e3a8a;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1rem;
+  height: 1rem;
 }
 
 .user-menu {
