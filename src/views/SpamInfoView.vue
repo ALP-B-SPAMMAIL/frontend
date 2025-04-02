@@ -1,6 +1,5 @@
 <template>
   <div class="spam-info-view">
-    <!-- Header Section -->
     <div class="section-header">
       <h1>스팸 정보 제공</h1>
       <p class="section-description">
@@ -8,7 +7,6 @@
       </p>
     </div>
 
-    <!-- Search Section -->
     <div class="search-section">
       <div class="search-container">
         <div class="search-input-wrapper">
@@ -27,7 +25,6 @@
       </div>
     </div>
 
-    <!-- Search Results Section -->
     <div v-if="searchResult" class="result-section">
       <div class="result-card" :class="{ 'danger': searchResult.riskLevel === '높음', 'warning': searchResult.riskLevel === '중간', 'safe': searchResult.riskLevel === '낮음' }">
         <div class="result-header">
@@ -40,12 +37,12 @@
         <div class="result-details">
           <div class="detail-item">
             <div class="detail-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                <path v-if="searchResult.riskLevel === '높음'" d="M12 8v4"></path>
-                <path v-if="searchResult.riskLevel === '높음'" d="M12 16h.01"></path>
-                <path v-if="searchResult.riskLevel === '낮음'" d="M9 12l2 2 4-4"></path>
-              </svg>
+              <img 
+                src="@/assets/icons/shield.png" 
+                alt="Shield Icon" 
+                width="16" 
+                height="16"
+              />
               <span>위험 수준:</span>
             </div>
             <div class="detail-value" :class="{ 'danger-text': searchResult.riskLevel === '높음', 'warning-text': searchResult.riskLevel === '중간', 'safe-text': searchResult.riskLevel === '낮음' }">
@@ -53,27 +50,27 @@
             </div>
           </div>
           
-          <div class="detail-item">
+          <!-- <div class="detail-item">
             <div class="detail-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
+              <img 
+                src="@/assets/icons/clock.png" 
+                alt="Clock Icon" 
+                width="16" 
+                height="16"
+              />
               <span>최초 신고일:</span>
             </div>
             <div class="detail-value">{{ searchResult.firstReported }}</div>
-          </div>
+          </div> -->
           
           <div class="detail-item">
             <div class="detail-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
+              <img 
+                src="@/assets/icons/report.png" 
+                alt="Report Icon" 
+                width="16" 
+                height="16"
+              />
               <span>신고 횟수:</span>
             </div>
             <div class="detail-value">{{ searchResult.reportCount }}회</div>
@@ -81,9 +78,12 @@
           
           <div class="detail-item">
             <div class="detail-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-              </svg>
+              <img 
+                src="@/assets/icons/type.png" 
+                alt="Type Icon" 
+                width="16" 
+                height="16"
+              />
               <span>유형:</span>
             </div>
             <div class="detail-value">{{ searchResult.type }}</div>
@@ -91,11 +91,12 @@
           
           <div class="detail-item">
             <div class="detail-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-              </svg>
+              <img 
+                src="@/assets/icons/description.png" 
+                alt="Description Icon" 
+                width="16" 
+                height="16"
+              />
               <span>설명:</span>
             </div>
             <div class="detail-value description">{{ searchResult.description }}</div>
@@ -104,7 +105,6 @@
       </div>
     </div>
 
-    <!-- Top Phishing Domains Section -->
     <div class="top-domains-section">
       <div class="section-header">
         <h2>월간 TOP 5 피싱 도메인</h2>
@@ -118,26 +118,30 @@
             <h3 class="domain-name">{{ domain.domain }}</h3>
             <div class="domain-stats">
               <div class="stat-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                  <path d="M12 8v4"></path>
-                  <path d="M12 16h.01"></path>
-                </svg>
+                <img 
+                  src="@/assets/icons/shield.png" 
+                  alt="Shield Icon" 
+                  width="16" 
+                  height="16"
+                />
                 <span>위험 수준: <strong>{{ domain.riskLevel }}</strong></span>
               </div>
               <div class="stat-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
+                <img 
+                  src="@/assets/icons/report.png" 
+                  alt="Report Icon" 
+                  width="16" 
+                  height="16"
+                />
                 <span>신고 횟수: <strong>{{ domain.reportCount }}회</strong></span>
               </div>
               <div class="stat-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
+                <img 
+                  src="@/assets/icons/type.png" 
+                  alt="Type Icon" 
+                  width="16" 
+                  height="16"
+                />
                 <span>유형: <strong>{{ domain.type }}</strong></span>
               </div>
             </div>
@@ -151,50 +155,62 @@
 
 <script setup>
 import { ref } from 'vue';
+import api from '@/services/api';
 
-// Search functionality
 const searchQuery = ref('');
 const searchResult = ref(null);
 
-const searchDomain = () => {
+const searchDomain = async () => {
   if (!searchQuery.value) return;
+
+  try {
+    const result = await api.getSpamInfo(searchQuery.value);
+    searchResult.value = {
+      domain: searchQuery.value,
+      reportCount: result.count,
+      type: result.topic,
+      description: result.reason,
+      riskLevel: '낮음'
+    };
+
+  } catch (error) {
+    console.error('Error fetching spam info:', error);
+  }
   
-  // Simulate API call with mock data
-  setTimeout(() => {
-    // For demo purposes, we'll return different results based on the search query
-    if (searchQuery.value.includes('phishing') || searchQuery.value.includes('scam')) {
-      searchResult.value = {
-        domain: searchQuery.value,
-        riskLevel: '높음',
-        firstReported: '2023년 4월 15일',
-        reportCount: 342,
-        type: '피싱',
-        description: '이 도메인은 금융 기관을 사칭하여 개인 정보 및 금융 정보를 탈취하려는 피싱 사이트로 확인되었습니다. 접속 시 개인정보 유출 위험이 매우 높습니다.'
-      };
-    } else if (searchQuery.value.includes('suspicious')) {
-      searchResult.value = {
-        domain: searchQuery.value,
-        riskLevel: '중간',
-        firstReported: '2023년 5월 3일',
-        reportCount: 87,
-        type: '의심',
-        description: '이 도메인은 의심스러운 활동이 보고되었으나 명확한 피싱 증거는 확인되지 않았습니다. 주의가 필요합니다.'
-      };
-    } else {
-      searchResult.value = {
-        domain: searchQuery.value,
-        riskLevel: '낮음',
-        firstReported: '해당 없음',
-        reportCount: 0,
-        type: '안전',
-        description: '이 도메인에 대한 위험 보고가 없습니다. 현재까지는 안전한 것으로 판단됩니다.'
-      };
-    }
-  }, 500);
+  // setTimeout(() => {
+  //   if (searchQuery.value.includes('phishing') || searchQuery.value.includes('scam')) {
+  //     searchResult.value = {
+  //       domain: searchQuery.value,
+  //       riskLevel: '높음',
+  //       firstReported: '2023년 4월 15일',
+  //       reportCount: 342,
+  //       type: '피싱',
+  //       description: '이 도메인은 금융 기관을 사칭하여 개인 정보 및 금융 정보를 탈취하려는 피싱 사이트로 확인되었습니다. 접속 시 개인정보 유출 위험이 매우 높습니다.'
+  //     };
+  //   } else if (searchQuery.value.includes('suspicious')) {
+  //     searchResult.value = {
+  //       domain: searchQuery.value,
+  //       riskLevel: '중간',
+  //       firstReported: '2023년 5월 3일',
+  //       reportCount: 87,
+  //       type: '의심',
+  //       description: '이 도메인은 의심스러운 활동이 보고되었으나 명확한 피싱 증거는 확인되지 않았습니다. 주의가 필요합니다.'
+  //     };
+  //   } else {
+  //     searchResult.value = {
+  //       domain: searchQuery.value,
+  //       riskLevel: '낮음',
+  //       firstReported: '해당 없음',
+  //       reportCount: 0,
+  //       type: '안전',
+  //       description: '이 도메인에 대한 위험 보고가 없습니다. 현재까지는 안전한 것으로 판단됩니다.'
+  //     };
+  //   }
+  // }, 500);
 };
 
 // Top phishing domains data
-const lastUpdated = '2023년 5월 31일';
+const lastUpdated = '2025년 3월 31일';
 const topDomains = [
   {
     id: 1,
@@ -510,7 +526,7 @@ const topDomains = [
   color: #64748b;
 }
 
-.stat-item svg {
+.stat-item img {
   color: #1e3a8a;
 }
 

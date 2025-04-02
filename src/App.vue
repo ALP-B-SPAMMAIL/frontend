@@ -9,7 +9,7 @@
         <nav class="main-nav">
           <ul>
             <li><router-link to="/inbox">메일</router-link></li>
-            <li><router-link to="/information">스팸정보제공</router-link></li>
+            <li><router-link to="/information">스팸정보</router-link></li>
           </ul>
         </nav>
       </div>
@@ -62,7 +62,6 @@ const handleLogout = () => {
   router.push('/welcome');
 };
 
-// Close user menu when clicking outside
 onMounted(() => {
   document.addEventListener('click', (event) => {
     const userControls = document.querySelector('.user-controls');
@@ -276,7 +275,7 @@ onMounted(() => {
   }
 }
 .no-header {
-  padding: 0; /* 헤더가 없을 때는 패딩 제거 */
+  padding: 0;
 }
 
 .main-content {

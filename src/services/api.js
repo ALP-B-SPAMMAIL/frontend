@@ -6,7 +6,7 @@ const MAIL_SERVER_URL = API_URL + '/mail'; //mail-server
 const AUTH_SERVER_URL = API_URL + '/auth'; //auth-server
 const MONITORING_SERVER_URL = API_URL + '/monitoring'; //monitoring-server
 const USER_SERVER_URL = API_URL + '/user'; //user-server
-
+const SPAM_SERVER_URL = API_URL + '/spam'; //spam-server
 const userServerApi = axios.create({
   baseURL: USER_SERVER_URL,
   headers: {
@@ -79,6 +79,26 @@ monitoringServerApi.interceptors.request.use(
   }
 );
 
+const spamServerApi = axios.create({
+  baseURL: SPAM_SERVER_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  },
+});
+
+spamServerApi.interceptors.request.use(
+  (config) => {
+    const userStore = useUserStore();
+    const token = userStore.token;
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 
 export default {
@@ -176,6 +196,15 @@ export default {
   async deleteSpamFlag(mailId) {
     try {
       const response = await mailServerApi.delete(`/spams/${mailId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+  
+  async getSpamInfo(query) {
+    try {
+      const response = await spamServerApi.post('/search', { sender: query });
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
