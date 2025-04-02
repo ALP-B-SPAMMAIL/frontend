@@ -146,16 +146,6 @@ export default {
       throw error.response?.data || error;
     }
   },
-  // async deleteUser(userId, userData) {
-  //   try {
-  //     const response = await userServerApi.delete(`/delete/${userId}`, {
-  //       data: userData
-  //     });
-  //     return response.data;
-  //   } catch (error) {
-  //     throw error.response?.data || error;
-  //   }
-  // },
 
   async getMailList(userId) {
     try {
