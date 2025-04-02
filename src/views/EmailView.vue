@@ -197,7 +197,7 @@
         <p>{{ currentEmail.aiSummary }}</p>
       </div>
       
-      <div v-if="currentFolder === 'spam'" class="spam-info">
+      <div v-if="currentFolder === 'spam' && spamInfo" class="spam-info">
         <h3>
           <img src="@/assets/icons/warning_red.png" alt="Warning Icon" class="warning-icon" />
           스팸 정보
@@ -205,15 +205,17 @@
         <div class="spam-details">
           <div class="spam-detail-item">
             <span class="detail-label">위험 수준:</span>
-            <span class="detail-value high">높음</span>
+            <span class="detail-value" :class="spamInfo.riskLevel === '높음' ? 'high' : ''">
+              {{ spamInfo.riskLevel }}
+            </span>
           </div>
           <div class="spam-detail-item">
             <span class="detail-label">유형:</span>
-            <span class="detail-value">피싱</span>
+            <span class="detail-value">{{ spamInfo.type }}</span>
           </div>
           <div class="spam-detail-item">
             <span class="detail-label">신고 횟수:</span>
-            <span class="detail-value">127회</span>
+            <span class="detail-value">{{ spamInfo.reportCount }}회</span>
           </div>
         </div>
       </div>
@@ -244,6 +246,7 @@ import ComposeEmail from '@/components/ComposeEmail.vue';
 import SpamReportModal from '@/components/SpamReportModal.vue';
 import api from '@/services/api';
 import { useUserStore } from '@/stores/user';
+import { MailWarning } from 'lucide-vue-next';
 
 const userStore = useUserStore();
 
@@ -369,6 +372,50 @@ const currentEmail = computed(() => {
   return emailList.find(email => email.id === selectedEmail.value) || null;
 });
 
+// 스팸 정보를 저장할 ref 추가
+const spamInfo = ref(null);
+
+// 스팸 정보를 가져오는 함수 추가
+const fetchSpamInfo = async (email) => {
+  if (!email || !email.email) return;
+  
+  try {
+    const result = await api.getSpamInfo(email.email);
+    const reportCount = result.count || 0;
+    
+    // 신고 횟수에 따른 위험 수준 결정
+    let riskLevel = '낮음';
+    if (reportCount >= 50) {
+      riskLevel = '높음';
+    } else if (reportCount >= 10) {
+      riskLevel = '중간';
+    } else if (reportCount == 0) {
+      riskLevel = '정보 없음';
+    }
+
+    spamInfo.value = {
+      riskLevel,
+      type: result.topic || '알 수 없음',
+      reportCount
+    };
+  } catch (error) {
+    console.error('Error fetching spam info:', error);
+    spamInfo.value = null;
+  }
+};
+
+// 이메일 선택 시 스팸 정보 가져오기
+watch(selectedEmail, async (newEmailId) => {
+  if (newEmailId && currentFolder.value === 'spam') {
+    const email = currentEmail.value;
+    if (email) {
+      await fetchSpamInfo(email);
+    }
+  } else {
+    spamInfo.value = null;
+  }
+});
+
 const noEmailsMessage = computed(() => {
   if (searchQuery.value) {
     return '검색 결과가 없습니다.';
@@ -443,6 +490,7 @@ const fetchEmails = async () => {
         id: mail.mailId,
         sender: senderInfo.name,
         email: senderInfo.email,
+        //originalSender: mail.mailSender,
         subject: mail.mailTitle || '제목 없음',
         preview: mail.mailContent?.slice(0, 100).replace(/\r\n|\n/g, ' ') || '미리보기 없음',
         html: mail.mailHtmlContent || '본문 없음',
@@ -476,6 +524,7 @@ const fetchEmails = async () => {
         id: mail.mailId,
         sender: senderInfo.name,
         email: senderInfo.email,
+        // originalSender: mail.mailSender,
         subject: mail.mailTitle || '제목 없음',
         preview: mail.mailContent?.slice(0, 100).replace(/\r\n|\n/g, ' ') || '미리보기 없음',
         html: mail.mailHtmlContent || '본문 없음',
