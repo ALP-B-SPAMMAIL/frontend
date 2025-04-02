@@ -234,6 +234,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import ComposeEmail from '@/components/ComposeEmail.vue';
 import api from '@/services/api';
+import localStorage from '@/services/localStorage';
 
 // Sample data
 const folders = [

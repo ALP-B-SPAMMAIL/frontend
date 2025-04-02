@@ -22,7 +22,7 @@
           <div class="user-menu" v-if="showUserMenu">
             <ul>
               <li><router-link to="/settings">설정</router-link></li>
-              <li><button @click="logout" class="logout-btn">로그아웃</button></li>
+              <li><button @click="handleLogout" class="logout-btn">로그아웃</button></li>
             </ul>
           </div>
         </div>
@@ -38,10 +38,11 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import localStorage from '@/services/localStorage';
 
 const router = useRouter();
 const route = useRoute();
-const userName = ref('사용자');
+const userName = ref(localStorage.getUserId() || '');
 const showUserMenu = ref(false);
 
 const isSpecialPage = computed(() => {
@@ -53,10 +54,10 @@ const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value;
 };
 
-const logout = () => {
-  // Handle logout logic
+const handleLogout = () => {
+  localStorage.clearUserSession();
+  userName.value = '';
   showUserMenu.value = false;
-  // Redirect to login page after logout
   router.push('/welcome');
 };
 
