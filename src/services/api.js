@@ -56,6 +56,16 @@ const api = axios.create({
       } catch (error) {
         throw error.response?.data || error;
       }
-    }
+    },
+
+    async deleteSpamFlag(mailId) {
+      try {
+        const response = await api.delete(`/mail/spams/${mailId}`);
+        return response.data;
+      } catch (error) {
+        throw error.response?.data || error;
+      }
+    },
+    
     
   };

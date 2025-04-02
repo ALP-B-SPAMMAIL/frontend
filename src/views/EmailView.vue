@@ -616,23 +616,21 @@ const markAsSpam = (emailId) => {
   }
 };
 
-const markAsNotSpam = (emailId) => {
-  const email = spamEmails.value.find(e => e.id === emailId);
-  
-  if (email) {
-    // 일반 메일 목록에 추가
-    emails.value.push({
-      ...email,
-      folder: 'inbox'
-    });
+const markAsNotSpam = async (emailId) => {
+  try {
+    // API 요청으로 스팸 플래그 삭제
+    await api.deleteSpamFlag(emailId);
     
-    // 스팸 목록에서 제거
-    spamEmails.value = spamEmails.value.filter(e => e.id !== emailId);
+    // 성공적으로 처리되면 메일 목록을 다시 가져옴
+    await fetchEmails();
     
     // 선택 해제
     if (selectedEmail.value === emailId) {
       selectedEmail.value = null;
     }
+  } catch (error) {
+    console.error('스팸 플래그 삭제 중 오류 발생:', error);
+    alert('오류가 발생했습니다.');
   }
 };
 
