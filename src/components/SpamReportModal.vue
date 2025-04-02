@@ -33,12 +33,8 @@
         </div>
         
         <div class="warning-box">
-          <div class="warning-icon">
-            <img src="@/assets/icons/warning_red.png" alt="Warning Icon" class="warning-icon" width="24" height="24"/>
-          </div>
-          <div class="warning-content">
-            <p>스팸 신고 시 해당 메일은 스팸 메일함으로 이동되며, 향후 비슷한 메일이 차단될 수 있습니다.</p>
-          </div>
+          <img src="@/assets/icons/warning_red.png" alt="Warning Icon" class="warning-icon" width="24" height="24"/>
+          <p class="warning-text">스팸 신고 시 해당 메일은 스팸 메일함으로 이동되며, 향후 비슷한 메일이 차단될 수 있습니다.</p>
         </div>
       </div>
       
@@ -182,7 +178,8 @@ const handleSubmit = () => {
 
 .warning-box {
   display: flex;
-  gap: 1rem;
+  align-items: flex-start;
+  gap: 0.75rem;
   padding: 1rem;
   background-color: #fff1f2;
   border-radius: 0.5rem;
@@ -190,14 +187,15 @@ const handleSubmit = () => {
 }
 
 .warning-icon {
-  color: #dc2626;
   flex-shrink: 0;
+  margin-top: 0.125rem;
 }
 
-.warning-content {
+.warning-text {
   color: #9f1239;
   font-size: 0.875rem;
   line-height: 1.5;
+  margin: 0;
 }
 
 .modal-footer {
@@ -240,4 +238,4 @@ const handleSubmit = () => {
   opacity: 0.7;
   cursor: not-allowed;
 }
-</style> 
+</style>
