@@ -200,6 +200,15 @@ export default {
       throw error.response?.data || error;
     }
   },
-  
+
+  async sendMail(fromUserId, to, subject, content) {
+    try {
+      console.log(fromUserId, to, subject, content);
+      const response = await mailServerApi.get(`/send?fromUserId=${fromUserId}&to=${to}&subject=${encodeURIComponent(subject)}&content=${encodeURIComponent(content)}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
   
 };  

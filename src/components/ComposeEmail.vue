@@ -44,46 +44,31 @@
               </div>
             </div>
             
+            
             <div class="form-group">
-              <label for="cc">참조</label>
-              <div class="email-tags-input">
-                <div v-for="(email, index) in ccs" :key="index" class="email-tag">
-                  <span>{{ email }}</span>
-                  <button type="button" @click="removeCc(index)" class="remove-tag">&times;</button>
-                </div>
+              <label for="subject">제목</label>
+              <div class="input-container">
                 <input 
                   type="text" 
-                  id="cc" 
-                  v-model="ccInput" 
-                  placeholder="참조할 이메일 주소를 입력 후 Enter로 구분" 
-                  class="tag-input"
-                  @keydown.enter.prevent="addCc"
-                  @keydown.backspace="handleCcBackspace"
-                  @paste="handleCcPaste"
+                  id="subject" 
+                  v-model="subject" 
+                  placeholder="제목을 입력하세요" 
+                  class="form-input"
                 />
               </div>
             </div>
             
             <div class="form-group">
-              <label for="subject">제목</label>
-              <input 
-                type="text" 
-                id="subject" 
-                v-model="subject" 
-                placeholder="제목을 입력하세요" 
-                class="form-input"
-              />
-            </div>
-            
-            <div class="form-group">
               <label for="message">내용</label>
-              <textarea 
-                id="message" 
-                v-model="message" 
-                placeholder="메일 내용을 입력하세요" 
-                class="form-textarea"
-                rows="10"
-              ></textarea>
+              <div class="input-container">
+                <textarea 
+                  id="message" 
+                  v-model="message" 
+                  placeholder="메일 내용을 입력하세요" 
+                  class="form-textarea"
+                  rows="10"
+                ></textarea>
+              </div>
             </div>
           </div>
         </div>
@@ -100,6 +85,8 @@
   
   <script setup>
   import { ref, defineProps, defineEmits, watch } from 'vue';
+  import api from '@/services/api';
+  import { useUserStore } from '@/stores/user';
   
   const props = defineProps({
     isOpen: {
@@ -218,17 +205,66 @@ const closeCompose = () => {
   emit('close');
 };
 
-const sendEmail = () => {
-  const emailData = {
-    to: recipients.value,
-    cc: ccs.value,
-    subject: subject.value,
-    message: message.value,
-    attachments: attachments.value
-  };
-  
-  emit('send', emailData);
-  closeCompose();
+const sendEmail = async () => {
+  try {
+    const userStore = useUserStore();
+    const fromUserId = userStore.userCode;
+    console.log(fromUserId, recipient.value, subject.value, message.value);
+    if (!fromUserId) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+    
+    if (recipients.value.length === 0) {
+      alert('받는 사람을 입력해주세요.');
+      return;
+    }
+    
+    if (!subject.value.trim()) {
+      alert('제목을 입력해주세요.');
+      return;
+    }
+    
+    if (!message.value.trim()) {
+      alert('내용을 입력해주세요.');
+      return;
+    }
+    
+    // 모든 수신자를 한 번에 전송
+    const allRecipients = [...recipients.value,];
+    console.log(allRecipients);
+    // 중복 제거
+    const uniqueRecipients = [...new Set(allRecipients)];
+    
+    // 각 수신자에게 메일 전송
+    for (const recipient of uniqueRecipients) {
+      try {
+        await api.sendMail(
+          fromUserId,
+          recipient,
+          subject.value,
+          message.value
+        );
+      } catch (error) {
+        console.error(`Failed to send email to ${recipient}:`, error);
+        alert(`${recipient}에게 메일 전송에 실패했습니다.`);
+        return;
+      }
+    }
+    
+    emit('send', {
+      to: recipients.value,
+      cc: ccs.value,
+      subject: subject.value,
+      message: message.value
+    });
+    
+    alert('메일이 성공적으로 전송되었습니다.');
+    closeCompose();
+  } catch (error) {
+    console.error('Failed to send email:', error);
+    alert('메일 전송에 실패했습니다. 다시 시도해주세요.');
+  }
 };
 
 const toggleMinimize = () => {
@@ -345,20 +381,30 @@ const formatFileSize = (bytes) => {
   color: #1e293b;
 }
 
-.form-input,
-.form-textarea {
-  width: 100%;
-  padding: 0.75rem;
+.input-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 0.375rem;
+  gap: 0.5rem;
   border: 1px solid #e2e8f0;
   border-radius: 0.375rem;
-  font-size: 0.875rem;
+  background-color: #ffffff;
   transition: border-color 0.2s;
 }
 
-.form-input:focus,
-.form-textarea:focus {
+.input-container:focus-within {
   border-color: #1e3a8a;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  border: none;
   outline: none;
+  font-size: 0.875rem;
+  padding: 0.375rem 0;
+  background: transparent;
 }
 
 .form-textarea {
