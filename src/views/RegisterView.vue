@@ -317,7 +317,7 @@
         
         <div class="form-navigation">
           <button type="button" class="btn-secondary" @click="prevStep">이전</button>
-          <button type="button" class="btn-primary" @click="handleRegister">회원가입 완료</button>
+          <button type="button" class="btn-primary" @click="handleMailInfo">회원가입 완료</button>
         </div>
       </div>
       
@@ -483,8 +483,10 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
+// import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
+// const userStore = useUserStore();
 
 // Step management
 const steps = ['기본 정보', '추가 정보', '메일 서버 설정'];
@@ -524,6 +526,7 @@ const birthYear = ref('');
 const birthMonth = ref('');
 const birthDay = ref('');
 const gender = ref('');
+const userCode = ref(0);
 
 const passwordStrength = ref(0);
 const strengthClass = ref('');
@@ -657,7 +660,8 @@ const handleRegister = async () => {
 
     const result = await api.registerUser(payload);
     console.log('회원가입 성공:', result);
-
+    userCode.value = result.userId;
+    alert('회원가입이 완료되었습니다. 메일 권한 설정으로 이동합니다.');
     // 회원가입 성공 시 Step 3로 이동
     currentStep.value = 2;
   } catch (error) {
@@ -667,6 +671,29 @@ const handleRegister = async () => {
     currentStep.value = 0;
   }
 };
+
+const handleMailInfo = async () => {
+  try {
+    const mailInfoPayload = {
+      userId: userCode.value,
+      protocolType: formData.value.mailSettings.protocol,
+      serverAddress: formData.value.mailSettings.server,
+      emailAddress: formData.value.mailSettings.email,
+      emailPassword: formData.value.mailSettings.password,
+    };
+
+    console.log('메일 서버 설정 데이터:', mailInfoPayload);
+
+    const result = await api.updateMailInfo(mailInfoPayload);
+    console.log('메일 서버 설정 성공:', result);
+
+    // 메일 서버 설정 성공 후 로그인 페이지로 이동
+    router.push('/login');
+  } catch (error) {
+    console.error('메일 서버 설정 실패:', error);
+    alert(`메일 서버 설정 실패: ${error.message || '서버 오류'}`);
+  }
+}
 </script>
 
 <style scoped>

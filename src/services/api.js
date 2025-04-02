@@ -5,8 +5,8 @@ import { useUserStore } from '@/stores/user';
 // const API_URL = 'http://172.30.1.45:8080';
 const API_URL = 'https://whowhomail.kro.kr';
 const MAIL_SERVER_URL = API_URL + '/mail'; //mail-server
-//const AUTH_SERVER_URL = 'https://4.230.154.202';
-const AUTH_SERVER_URL = 'https://whowhomail.kro.kr';
+const AUTH_SERVER_URL = API_URL + '/auth'; //auth-server
+const MONITORING_SERVER_URL = API_URL + '/monitoring'; //monitoring-server
 
 const authServerApi = axios.create({
     baseURL: AUTH_SERVER_URL,
@@ -37,10 +37,40 @@ mailServerApi.interceptors.request.use(
   }
 );
 
+const monitoringServerApi = axios.create({
+  baseURL: MONITORING_SERVER_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  },
+});
+
+monitoringServerApi.interceptors.request.use(
+  (config) => {
+    const userStore = useUserStore();
+    const token = userStore.token;
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export default {
   async registerUser(userData) {
     try {
-      const response = await authServerApi.post('/auth/register', userData);
+      const response = await authServerApi.post('/register', userData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  async updateMailInfo(mailData) {
+    try {
+      const response = await monitoringServerApi.post(`/monitoring`, mailData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
@@ -49,7 +79,7 @@ export default {
 
   async loginUser(userData) {
     try {
-      const response = await authServerApi.post('/auth/sign-in', userData);
+      const response = await authServerApi.post('/sign-in', userData);
       return response;
     } catch (error) {
       throw error.response?.data || error;
@@ -104,4 +134,4 @@ export default {
   },
   
   
-};
+};  
