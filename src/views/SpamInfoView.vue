@@ -107,7 +107,7 @@
 
     <div class="top-domains-section">
       <div class="section-header">
-        <h2>월간 TOP 5 피싱 도메인</h2>
+        <h2>TOP 5 피싱 도메인</h2>
         <p class="update-info">마지막 업데이트: {{ lastUpdated }}</p>
       </div>
       

@@ -1117,7 +1117,7 @@ const restoreEmail = async (emailId) => {
 .ai-summary-tooltip p {
   margin: 0;
   font-size: 0.875rem;
-  color: #0c4a6e;
+  color: #0369a1;
   line-height: 1.5;
 }
 
