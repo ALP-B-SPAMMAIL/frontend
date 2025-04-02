@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import localStorage from '@/services/localStorage';
+import localStorage from '@/stores/localStorage';
 
 export const useUserStore = defineStore('user', {
   state: () => ({

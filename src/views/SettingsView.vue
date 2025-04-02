@@ -93,7 +93,6 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import MailPermissionsForm from '@/components/MailPermissionsForm.vue';
 import api from '@/services/api';
-import localStorageUtil from '@/services/localStorage';
 import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
@@ -106,10 +105,8 @@ const settingsSections = [
   { id: 'delete', name: '회원 탈퇴' }
 ];
 
-// Active section
 const activeSection = ref('permissions');
 
-// Account deletion
 const deleteAccount = ref({
   reason: '',
   otherReason: '',
