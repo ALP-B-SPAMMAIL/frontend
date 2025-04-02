@@ -147,7 +147,7 @@
             <img src="@/assets/icons/shield.png" alt="Shield Icon" class="action-icon" />
             <span>스팸 아님</span>
           </button>
-          <button v-else class="action-btn spam-btn" @click="markAsSpam(currentEmail.id)">
+          <button v-else class="action-btn spam-btn" @click="markAsSpam">
             <img src="@/assets/icons/report.png" alt="Report Icon" class="action-icon" />
             <span>스팸 신고</span>
           </button>
@@ -155,7 +155,7 @@
         
         <!-- In Trash Can -->
         <template v-else>
-          <button class="action-btn spam-btn" @click="markAsSpam(currentEmail.id)">
+          <button class="action-btn spam-btn" @click="markAsSpam">
             <img src="@/assets/icons/report.png" alt="Report Icon" class="action-icon" />
             <span>스팸 신고</span>
           </button>
@@ -227,14 +227,25 @@
       @close="closeComposeEmail"
       @send="handleSendEmail"
     />
+
+    <!-- Spam Report Modal -->
+    <SpamReportModal
+      v-if="showSpamReportModal"
+      :emailId="selectedEmail"
+      @close="showSpamReportModal = false"
+      @submit="handleSpamReport"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import ComposeEmail from '@/components/ComposeEmail.vue';
+import SpamReportModal from '@/components/SpamReportModal.vue';
 import api from '@/services/api';
-import localStorage from '@/services/localStorage';
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
 
 // Sample data
 const folders = [
@@ -276,6 +287,7 @@ const hoveredEmail = ref(null);
 const mouseX = ref(0);
 const mouseY = ref(0);
 const showComposeEmail = ref(false);
+const showSpamReportModal = ref(false);
 const isReply = ref(false);
 const replyToEmail = ref({});
 
@@ -410,7 +422,7 @@ const parseMailSender = (mailSender) => {
 const fetchEmails = async () => {
   try {
     // 일반 메일 가져오기
-    const normalMailResponse = await api.getNormalMailList(9, 0);
+    const normalMailResponse = await api.getNormalMailList(userStore.userCode, 0);
     if (!normalMailResponse) {
       console.error('Invalid response format');
       return;
@@ -419,7 +431,7 @@ const fetchEmails = async () => {
     // 모든 페이지의 메일을 가져오기
     const allNormalMails = [];
     for (let page = 0; page < normalMailResponse.totalPages; page++) {
-      const response = await api.getNormalMailList(9, page);
+      const response = await api.getNormalMailList(userStore.userCode, page);
       if (response && response.content) {
         allNormalMails.push(...response.content);
       }
@@ -443,7 +455,7 @@ const fetchEmails = async () => {
     });
 
     // 스팸 메일 가져오기
-    const spamMailResponse = await api.getSpamMailList(9, 0);
+    const spamMailResponse = await api.getSpamMailList(userStore.userCode, 0);
     if (!spamMailResponse) {
       console.error('Invalid response format');
       return;
@@ -452,7 +464,7 @@ const fetchEmails = async () => {
     // 모든 페이지의 스팸 메일을 가져오기
     const allSpamMails = [];
     for (let page = 0; page < spamMailResponse.totalPages; page++) {
-      const response = await api.getSpamMailList(9, page);
+      const response = await api.getSpamMailList(userStore.userCode, page);
       if (response && response.content) {
         allSpamMails.push(...response.content);
       }
@@ -562,29 +574,22 @@ const handleSendEmail = (emailData) => {
   alert('이메일이 성공적으로 발송되었습니다.');
 };
 
-const markAsSpam = (emailId) => {
-  // 현재 폴더에 따라 적절한 이메일 목록 선택
-  const emailList = currentFolder.value === 'spam' ? spamEmails.value : emails.value;
-  const email = emailList.find(e => e.id === emailId);
-  
-  if (email) {
-    // 스팸 메일 목록에 추가
-    spamEmails.value.push({
-      ...email,
-      folder: 'spam'
+const markAsSpam = () => {
+  showSpamReportModal.value = true;
+};
+
+const handleSpamReport = async (reportData) => {
+  try {
+    await api.reportSpam(reportData.emailId, {
+      reason: reportData.reason
     });
     
-    // 원래 목록에서 제거
-    if (currentFolder.value === 'spam') {
-      spamEmails.value = spamEmails.value.filter(e => e.id !== emailId);
-    } else {
-      emails.value = emails.value.filter(e => e.id !== emailId);
-    }
-    
-    // 선택 해제
-    if (selectedEmail.value === emailId) {
-      selectedEmail.value = null;
-    }
+    fetchEmails();
+    showSpamReportModal.value = false;
+    alert('스팸 신고가 완료되었습니다.');
+  } catch (error) {
+    console.error('스팸 신고 중 오류 발생:', error);
+    alert('스팸 신고 중 오류가 발생했습니다.');
   }
 };
 

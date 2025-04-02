@@ -164,6 +164,15 @@ export default {
     }
   },
 
+  async reportSpam(mailId, reportData) {
+    try {
+      const response = await mailServerApi.post(`${mailId}/report`, reportData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
   async deleteSpamFlag(mailId) {
     try {
       const response = await mailServerApi.delete(`/spams/${mailId}`);
