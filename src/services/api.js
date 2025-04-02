@@ -1,5 +1,5 @@
 import axios from 'axios';
-import localStorage from '@/services/localStorage';
+import { useUserStore } from '@/stores/user';
 
 // axios.defaults.withCredentials = true;
 // const API_URL = 'http://172.30.1.45:8080';
@@ -24,7 +24,8 @@ const mailServerApi = axios.create({
 // mailServerApi 요청 인터셉터 추가
 mailServerApi.interceptors.request.use(
   (config) => {
-    const token = localStorage.getToken();
+    const userStore = useUserStore();
+    const token = userStore.token;
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }

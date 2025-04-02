@@ -19,7 +19,7 @@
           <span class="user-avatar">
             <img src="@/assets/icons/user.png" alt="User Icon" class="user-icon" />
           </span>
-          <div class="user-menu" v-if="showUserMenu">
+          <div class="user-menu" v-show="showUserMenu">
             <ul>
               <li><router-link to="/settings">설정</router-link></li>
               <li><button @click="handleLogout" class="logout-btn">로그아웃</button></li>
@@ -38,12 +38,14 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import localStorage from '@/services/localStorage';
+import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
 const route = useRoute();
-const userName = ref(localStorage.getUserId() || '');
+const userStore = useUserStore();
 const showUserMenu = ref(false);
+
+const userName = computed(() => userStore.userId);
 
 const isSpecialPage = computed(() => {
   const specialRoutes = ['Welcome', 'Login', 'Register'];
@@ -55,8 +57,7 @@ const toggleUserMenu = () => {
 };
 
 const handleLogout = () => {
-  localStorage.clearUserSession();
-  userName.value = '';
+  userStore.logout();
   showUserMenu.value = false;
   router.push('/welcome');
 };

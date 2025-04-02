@@ -64,12 +64,13 @@
 import { ref } from 'vue';
 import api from '@/services/api';
 import { useRouter } from 'vue-router';
-import localStorage from '@/services/localStorage';
+import { useUserStore } from '@/stores/user';
 
+const router = useRouter();
+const userStore = useUserStore();
 const id = ref('');
 const password = ref('');
 const showPassword = ref(false);
-const router = useRouter();
 
 const handleLogin = async () => {
   try {
@@ -80,8 +81,12 @@ const handleLogin = async () => {
     
     // 토큰 저장
     if (response.data.accessToken) {
-      // localStorage.setUserSession(id.value, response.data.accessToken, response.data.userId);
-      localStorage.setUserSession(id.value, response.data.accessToken, 9);
+      userStore.setUserSession(
+        id.value,
+        response.data.accessToken,
+        //response.data.userId
+        9
+      );
       router.push('/inbox');
     }
   } catch (error) {
