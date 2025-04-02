@@ -246,5 +246,14 @@ export default {
       throw error.response?.data || error;
     }
   },
+
+  async getTopSpam() {
+    try {
+      const response = await spamServerApi.get('/top/spam');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
   
 };  

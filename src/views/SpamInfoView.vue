@@ -154,11 +154,34 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import api from '@/services/api';
 
 const searchQuery = ref('');
 const searchResult = ref(null);
+const lastUpdated = ref('');
+const topDomains = ref([]);
+
+const fetchTopSpam = async () => {
+  try {
+    const result = await api.getTopSpam();
+    topDomains.value = result.searchResultDto.map((domain, index) => ({
+      id: index + 1,
+      domain: domain.sender,
+      riskLevel: domain.count >= 50 ? '높음' : domain.count >= 10 ? '중간' : '낮음',
+      reportCount: domain.count,
+      type: domain.topic || '알 수 없음',
+      description: domain.reason || '알 수 없음'
+    }));
+    lastUpdated.value = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+  } catch (error) {
+    console.error('Error fetching top spam domains:', error);
+  }
+};
+
+onMounted(() => {
+  fetchTopSpam();
+});
 
 const searchDomain = async () => {
   if (!searchQuery.value) return;
@@ -188,83 +211,7 @@ const searchDomain = async () => {
   } catch (error) {
     console.error('Error fetching spam info:', error);
   }
-  
-  // setTimeout(() => {
-  //   if (searchQuery.value.includes('phishing') || searchQuery.value.includes('scam')) {
-  //     searchResult.value = {
-  //       domain: searchQuery.value,
-  //       riskLevel: '높음',
-  //       firstReported: '2023년 4월 15일',
-  //       reportCount: 342,
-  //       type: '피싱',
-  //       description: '이 도메인은 금융 기관을 사칭하여 개인 정보 및 금융 정보를 탈취하려는 피싱 사이트로 확인되었습니다. 접속 시 개인정보 유출 위험이 매우 높습니다.'
-  //     };
-  //   } else if (searchQuery.value.includes('suspicious')) {
-  //     searchResult.value = {
-  //       domain: searchQuery.value,
-  //       riskLevel: '중간',
-  //       firstReported: '2023년 5월 3일',
-  //       reportCount: 87,
-  //       type: '의심',
-  //       description: '이 도메인은 의심스러운 활동이 보고되었으나 명확한 피싱 증거는 확인되지 않았습니다. 주의가 필요합니다.'
-  //     };
-  //   } else {
-  //     searchResult.value = {
-  //       domain: searchQuery.value,
-  //       riskLevel: '낮음',
-  //       firstReported: '해당 없음',
-  //       reportCount: 0,
-  //       type: '안전',
-  //       description: '이 도메인에 대한 위험 보고가 없습니다. 현재까지는 안전한 것으로 판단됩니다.'
-  //     };
-  //   }
-  // }, 500);
 };
-
-// Top phishing domains data
-const lastUpdated = '2025년 3월 31일';
-const topDomains = [
-  {
-    id: 1,
-    domain: 'fake-bank-secure.com',
-    riskLevel: '높음',
-    reportCount: 1247,
-    type: '피싱',
-    description: '주요 은행을 사칭하여 계좌 정보와 개인정보를 탈취하는 피싱 사이트입니다.'
-  },
-  {
-    id: 2,
-    domain: 'login-account-verify.net',
-    riskLevel: '높음',
-    reportCount: 983,
-    type: '피싱',
-    description: '소셜 미디어 계정 인증을 사칭하여 로그인 정보를 탈취하는 사이트입니다.'
-  },
-  {
-    id: 3,
-    domain: 'tax-refund-gov.co',
-    riskLevel: '높음',
-    reportCount: 876,
-    type: '피싱',
-    description: '세금 환급을 사칭하여 개인정보와 금융정보를 탈취하는 사이트입니다.'
-  },
-  {
-    id: 4,
-    domain: 'crypto-investment-quick.com',
-    riskLevel: '높음',
-    reportCount: 754,
-    type: '사기',
-    description: '가짜 암호화폐 투자 사이트로 투자금을 탈취합니다.'
-  },
-  {
-    id: 5,
-    domain: 'parcel-delivery-tracking.info',
-    riskLevel: '높음',
-    reportCount: 621,
-    type: '피싱',
-    description: '택배 배송 조회를 사칭하여 개인정보를 탈취하는 사이트입니다.'
-  }
-];
 </script>
 
 <style scoped>
