@@ -29,7 +29,7 @@
       <div class="result-card" :class="{ 'danger': searchResult.riskLevel === '높음', 'warning': searchResult.riskLevel === '중간', 'safe': searchResult.riskLevel === '낮음' }">
         <div class="result-header">
           <h2>{{ searchResult.domain }}</h2>
-          <div class="risk-badge" :class="{ 'danger': searchResult.riskLevel === '높음', 'warning': searchResult.riskLevel === '중간', 'safe': searchResult.riskLevel === '낮음' }">
+          <div class="risk-badge" :class="{ 'danger': searchResult.riskLevel === '높음', 'warning': searchResult.riskLevel === '중간', 'safe': searchResult.riskLevel === '낮음', 'noinfo': searchResult.riskLevel === '정보 없음' }">
             {{ searchResult.riskLevel }}
           </div>
         </div>
@@ -165,12 +165,24 @@ const searchDomain = async () => {
 
   try {
     const result = await api.getSpamInfo(searchQuery.value);
+    const reportCount = result.count || 0;
+    
+    // 신고 횟수에 따른 위험 수준 결정
+    let riskLevel = '낮음';
+    if (reportCount >= 2) {
+      riskLevel = '높음';
+    } else if (reportCount >= 1) {
+      riskLevel = '중간';
+    } else if (reportCount == 0) {
+      riskLevel = '정보 없음';
+    }
+
     searchResult.value = {
       domain: searchQuery.value,
-      reportCount: result.count,
-      type: result.topic,
-      description: result.reason,
-      riskLevel: '낮음'
+      reportCount: reportCount,
+      type: result.topic || '알 수 없음',
+      description: result.reason || '알 수 없음',
+      riskLevel: riskLevel
     };
 
   } catch (error) {
@@ -382,6 +394,10 @@ const topDomains = [
   border-top-color: #10b981;
 }
 
+.result-card.noinfo {
+  border-top-color: #64748b;
+}
+
 .result-header {
   display: flex;
   justify-content: space-between;
@@ -418,6 +434,11 @@ const topDomains = [
 .risk-badge.safe {
   background-color: #d1fae5;
   color: #059669;
+}
+
+.risk-badge.noinfo {
+  background-color: #e2e8f0;
+  color: #64748b;
 }
 
 .result-details {
