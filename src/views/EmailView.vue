@@ -330,7 +330,7 @@ const filteredEmails = computed(() => {
   });
 });
 
-// 페이지네이션된 이메일 목록
+// 페이지 이메일 목록
 const paginatedEmails = computed(() => {
   const startIndex = (currentPage.value - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -363,7 +363,6 @@ const displayedPages = computed(() => {
 const currentEmail = computed(() => {
   if (!selectedEmail.value) return null;
   
-  // 현재 폴더에 따라 적절한 이메일 목록 선택
   const emailList = currentFolder.value === 'spam' ? spamEmails.value : emails.value;
   if (!emailList) return null;
   
