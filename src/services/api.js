@@ -210,5 +210,41 @@ export default {
       throw error.response?.data || error;
     }
   },
+
+  async getTrashcanMails(userId, page) {
+    try {
+      const response = await mailServerApi.get(`/trashcan/${userId}?page=${page}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  async deleteMail(mailId) {
+    try {
+      const response = await mailServerApi.delete(`/trashcan/${mailId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  async permanentlyDeleteMail(mailId) {
+    try {
+      const response = await mailServerApi.delete(`/mails/${mailId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  async restoreMail(mailId) {
+    try {
+      const response = await mailServerApi.get(`/trashcan/${mailId}/restore`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
   
 };  

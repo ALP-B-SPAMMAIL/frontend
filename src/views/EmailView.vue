@@ -155,13 +155,9 @@
         
         <!-- In Trash Can -->
         <template v-else>
-          <button class="action-btn spam-btn" @click="markAsSpam">
-            <img src="@/assets/icons/report.png" alt="Report Icon" class="action-icon" />
-            <span>스팸 신고</span>
-          </button>
           <button class="action-btn restore-btn" @click="restoreEmail(currentEmail.id)">
             <img src="@/assets/icons/restore.png" alt="Restore Icon" class="action-icon" />
-            <span>복구</span>
+            <span>복원</span>
           </button>
         </template>
         
@@ -264,15 +260,22 @@ const folderCounts = computed(() => {
     trash: 0
   };
   
+  // 각 폴더별로 해당하는 메일 리스트만 카운트
   emails.value.forEach(email => {
-    if (counts[email.folder] !== undefined) {
-      counts[email.folder]++;
+    if (email.folder === 'inbox') {
+      counts.inbox++;
     }
   });
   
   spamEmails.value.forEach(email => {
-    if (counts[email.folder] !== undefined) {
-      counts[email.folder]++;
+    if (email.folder === 'spam') {
+      counts.spam++;
+    }
+  });
+
+  trashEmails.value.forEach(email => {
+    if (email.folder === 'trash') {
+      counts.trash++;
     }
   });
   
@@ -281,6 +284,7 @@ const folderCounts = computed(() => {
 
 const emails = ref([]);
 const spamEmails = ref([]);
+const trashEmails = ref([]);
 
 // Reactive state
 const currentFolder = ref('inbox');
@@ -318,7 +322,17 @@ const folderTitle = computed(() => {
 });
 
 const filteredEmails = computed(() => {
-  const emailList = currentFolder.value === 'spam' ? spamEmails.value : emails.value;
+  let emailList;
+  switch (currentFolder.value) {
+    case 'spam':
+      emailList = spamEmails.value;
+      break;
+    case 'trash':
+      emailList = trashEmails.value;
+      break;
+    default:
+      emailList = emails.value;
+  }
   
   if (!emailList) return [];
   
@@ -366,7 +380,18 @@ const displayedPages = computed(() => {
 const currentEmail = computed(() => {
   if (!selectedEmail.value) return null;
   
-  const emailList = currentFolder.value === 'spam' ? spamEmails.value : emails.value;
+  let emailList;
+  switch (currentFolder.value) {
+    case 'spam':
+      emailList = spamEmails.value;
+      break;
+    case 'trash':
+      emailList = trashEmails.value;
+      break;
+    default:
+      emailList = emails.value;
+  }
+  
   if (!emailList) return null;
   
   return emailList.find(email => email.id === selectedEmail.value) || null;
@@ -490,7 +515,6 @@ const fetchEmails = async () => {
         id: mail.mailId,
         sender: senderInfo.name,
         email: senderInfo.email,
-        //originalSender: mail.mailSender,
         subject: mail.mailTitle || '제목 없음',
         preview: mail.mailContent?.slice(0, 100).replace(/\r\n|\n/g, ' ') || '미리보기 없음',
         html: mail.mailHtmlContent || '본문 없음',
@@ -524,7 +548,6 @@ const fetchEmails = async () => {
         id: mail.mailId,
         sender: senderInfo.name,
         email: senderInfo.email,
-        // originalSender: mail.mailSender,
         subject: mail.mailTitle || '제목 없음',
         preview: mail.mailContent?.slice(0, 100).replace(/\r\n|\n/g, ' ') || '미리보기 없음',
         html: mail.mailHtmlContent || '본문 없음',
@@ -534,10 +557,40 @@ const fetchEmails = async () => {
         aiSummary: mail.mailSummarize || null
       };
     });
+
+    // 휴지통 메일 가져오기
+    const trashMailResponse = await api.getTrashcanMails(userStore.userCode, 0);
+    if (trashMailResponse) {
+      const allTrashMails = [];
+      for (let page = 0; page < trashMailResponse.totalPages; page++) {
+        const response = await api.getTrashcanMails(userStore.userCode, page);
+        if (response && response.content) {
+          allTrashMails.push(...response.content);
+        }
+      }
+
+      // 휴지통 메일 매핑
+      trashEmails.value = allTrashMails.map(mail => {
+        const senderInfo = parseMailSender(mail.mailSender);
+        return {
+          id: mail.mailId,
+          sender: senderInfo.name,
+          email: senderInfo.email,
+          subject: mail.mailTitle || '제목 없음',
+          preview: mail.mailContent?.slice(0, 100).replace(/\r\n|\n/g, ' ') || '미리보기 없음',
+          html: mail.mailHtmlContent || '본문 없음',
+          time: formatArrivedAt(mail.arrivedAt) || '시간 정보 없음',
+          folder: 'trash',
+          read: false,
+          aiSummary: mail.mailSummarize || null
+        };
+      });
+    }
   } catch (error) {
     console.error('Error fetching emails:', error);
     emails.value = [];
     spamEmails.value = [];
+    trashEmails.value = [];
   }
 };
 
@@ -581,7 +634,17 @@ const toggleEmailSelection = (emailId) => {
   } else {
     // Otherwise select it and mark as read
     selectedEmail.value = emailId;
-    const email = emails.value.find(e => e.id === emailId);
+    let email;
+    switch (currentFolder.value) {
+      case 'spam':
+        email = spamEmails.value.find(e => e.id === emailId);
+        break;
+      case 'trash':
+        email = trashEmails.value.find(e => e.id === emailId);
+        break;
+      default:
+        email = emails.value.find(e => e.id === emailId);
+    }
     if (email) {
       email.read = true;
     }
@@ -658,34 +721,44 @@ const markAsNotSpam = async (emailId) => {
   }
 };
 
-const deleteEmail = (emailId) => {
-  const index = emails.value.findIndex(e => e.id === emailId);
-  if (index !== -1) {
-    const email = emails.value[index];
-    if (email.folder === 'trash') {
-      // 완전히 삭제
-      emails.value.splice(index, 1);
+const deleteEmail = async (emailId) => {
+  try {
+    if (currentFolder.value === 'trash') {
+      // 휴지통에서 완전 삭제
+      await api.permanentlyDeleteMail(emailId);
+      // 메일 목록 전체를 다시 가져옴
+      await fetchEmails();
     } else {
       // 휴지통으로 이동
-      email.folder = 'trash';
+      await api.deleteMail(emailId);
+      // 메일 목록 전체를 다시 가져옴
+      await fetchEmails();
     }
     
     // 선택 해제
     if (selectedEmail.value === emailId) {
       selectedEmail.value = null;
     }
+  } catch (error) {
+    console.error('Error deleting email:', error);
+    alert('메일 삭제 중 오류가 발생했습니다.');
   }
 };
 
-const restoreEmail = (emailId) => {
-  const email = emails.value.find(e => e.id === emailId);
-  if (email && email.folder === 'trash') {
-    email.folder = 'inbox';
+const restoreEmail = async (emailId) => {
+  try {
+    await api.restoreMail(emailId);
+    
+    // 메일 목록 전체를 다시 가져옴
+    await fetchEmails();
     
     // 선택 해제
     if (selectedEmail.value === emailId) {
       selectedEmail.value = null;
     }
+  } catch (error) {
+    console.error('Error restoring email:', error);
+    alert('메일 복구 중 오류가 발생했습니다.');
   }
 };
 </script>
