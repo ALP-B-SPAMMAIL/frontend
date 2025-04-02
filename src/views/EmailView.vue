@@ -1269,65 +1269,137 @@ const restoreEmail = (emailId) => {
     grid-template-columns: 240px 1fr;
   }
   
+  .email-list {
+    max-width: 350px;
+  }
+  
   .email-detail {
     position: fixed;
     top: 0;
     right: 0;
     bottom: 0;
-    width: 60%;
+    width: calc(100% - 590px);
     z-index: 200;
     box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
-    transform: translateX(100%);
+    transform: translateX(0); /* Changed from translateX(100%) to always show */
     transition: transform 0.3s ease;
-  }
-  
-  .email-detail.active {
-    transform: translateX(0);
   }
 }
 
 @media (max-width: 768px) {
   .email-view {
     grid-template-columns: 1fr;
+    padding: 0;
   }
-  
+
   .email-sidebar {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
     width: 240px;
-    z-index: 200;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
   }
-  
+
   .email-sidebar.active {
     transform: translateX(0);
   }
-  
-  .email-detail {
+
+  .email-list {
     width: 100%;
+    max-width: none;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
   }
-  
-  .email-actions {
-    flex-direction: column;
+
+  .email-detail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 50;
+    overflow-y: auto;
+    transform: translateX(0); /* Changed from translateX(100%) to always show */
+    transition: transform 0.3s ease;
+  }
+
+  /* Remove the .email-detail.show class since we want it always visible */
+  /* .email-detail.show {
+    transform: translateX(0);
+  } */
+
+  .email-detail-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .email-detail-content {
+    padding: 1rem;
+  }
+
+  .email-detail-actions {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 1rem;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
     gap: 0.5rem;
   }
-  
-  .action-btn {
-    width: 100%;
+
+  .action-button {
+    flex: 1;
+    padding: 0.75rem;
+    font-size: 0.875rem;
   }
-  
-  .pagination-controls {
-    flex-direction: column;
-    padding: 0.5rem;
+
+  .action-button:first-child {
+    flex: 2;
   }
-  
-  /* Ensure tooltip stays within viewport on mobile */
-  .ai-summary-tooltip {
-    max-width: 80vw;
+}
+
+@media (max-width: 480px) {
+  .email-item {
+    padding: 0.75rem;
+  }
+
+  .email-sender {
+    font-size: 0.875rem;
+  }
+
+  .email-subject {
+    font-size: 0.875rem;
+  }
+
+  .email-preview {
+    font-size: 0.75rem;
+  }
+
+  .email-time {
+    font-size: 0.75rem;
+  }
+
+  .email-detail-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .email-detail-meta {
+    font-size: 0.875rem;
+  }
+
+  .email-detail-content {
+    font-size: 0.875rem;
   }
 }
 </style>
