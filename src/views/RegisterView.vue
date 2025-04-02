@@ -56,6 +56,21 @@
         </div>
         
         <div class="form-group">
+          <label for="email">이메일</label>
+          <div class="input-with-icon">
+            <img src="@/assets/icons/mail.png" alt="Email Icon" class="input-icon" width="18" height="18" />
+            <input 
+              type="email" 
+              id="email" 
+              v-model="formData.email" 
+              placeholder="이메일을 입력하세요" 
+              class="form-input" 
+              required
+            />
+          </div>
+        </div>
+        
+        <div class="form-group">
           <label for="password">비밀번호</label>
           <div class="input-with-icon">
             <img src="@/assets/icons/lock.png" alt="Password Icon" class="input-icon" width="18" height="18" />
@@ -497,6 +512,7 @@ const currentStep = ref(0);
 const formData = ref({
   name: '',
   id: '',
+  email: '',
   password: '',
   confirmPassword: '',
   agreeTerms: false,
@@ -655,6 +671,7 @@ const handleRegister = async () => {
       birthDate: formData.value.personalInfo.birthdate,
       password: formData.value.password,
       interest: formData.value.personalInfo.interests,
+      email: formData.value.email,
     };
 
     console.log('전송 데이터:', payload);
