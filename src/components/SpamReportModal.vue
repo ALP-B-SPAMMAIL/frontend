@@ -13,10 +13,10 @@
           <label for="spam-reason">스팸 신고 사유</label>
           <select id="spam-reason" v-model="reportReason" class="form-select">
             <option value="">선택하세요</option>
-            <option value="phishing">피싱 메일</option>
-            <option value="advertisement">광고성 메일</option>
-            <option value="malware">악성코드 포함</option>
-            <option value="harassment">성희롱/괴롭힘</option>
+            <option value="피싱">피싱 메일</option>
+            <option value="광고">광고성 메일</option>
+            <option value="악성코드">악성코드 포함</option>
+            <option value="성희롱/괴롭힘">성희롱/괴롭힘</option>
             <option value="other">기타</option>
           </select>
         </div>

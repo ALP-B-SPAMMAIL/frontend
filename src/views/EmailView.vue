@@ -128,11 +128,8 @@
       </div>
     </div>
     
-    <!-- Email Detail -->
     <div class="email-detail" v-if="currentEmail">
-      <!-- 이메일 액션 버튼들 - 제목 위로 이동 -->
       <div class="email-actions">
-        <!-- Not in Trash Can -->
         <template v-if="currentFolder !== 'trash'">
           <button class="action-btn reply-btn" @click="replyToCurrentEmail(currentEmail)">
             <img src="@/assets/icons/reply.png" alt="Reply Icon" class="action-icon" />

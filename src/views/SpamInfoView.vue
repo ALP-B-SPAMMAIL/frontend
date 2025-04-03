@@ -50,19 +50,6 @@
             </div>
           </div>
           
-          <!-- <div class="detail-item">
-            <div class="detail-label">
-              <img 
-                src="@/assets/icons/clock.png" 
-                alt="Clock Icon" 
-                width="16" 
-                height="16"
-              />
-              <span>최초 신고일:</span>
-            </div>
-            <div class="detail-value">{{ searchResult.firstReported }}</div>
-          </div> -->
-          
           <div class="detail-item">
             <div class="detail-label">
               <img 
@@ -87,6 +74,7 @@
               <span>유형:</span>
             </div>
             <div class="detail-value">{{ searchResult.type }}</div>
+            <!-- <div class="detail-value">{{ searchResult.description }}</div> -->
           </div>
           
           <div class="detail-item">
@@ -100,6 +88,7 @@
               <span>설명:</span>
             </div>
             <div class="detail-value description">{{ searchResult.description }}</div>
+            <!-- <div class="detail-value description">{{ searchResult.type }}</div> -->
           </div>
         </div>
       </div>
@@ -143,9 +132,11 @@
                   height="16"
                 />
                 <span>유형: <strong>{{ domain.type }}</strong></span>
+                <!-- <span>유형: <strong>{{ domain.description }}</strong></span> -->
               </div>
             </div>
             <p class="domain-description">{{ domain.description }}</p>
+            <!-- <p class="domain-description">{{ domain.type }}</p> -->
           </div>
         </div>
       </div>
