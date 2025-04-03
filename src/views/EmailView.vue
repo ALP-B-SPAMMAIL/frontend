@@ -184,11 +184,28 @@
       </div>
       
       <div v-if="currentEmail.aiSummary" class="ai-summary">
-        <h3>
-          <img src="@/assets/icons/ai.png" alt="AI Icon" class="mail-control-icon" width="18" height="18"/>
+        <div class="ai-summary-header">
+          <img src="@/assets/icons/ai.png" alt="AI Icon" class="ai-icon" />
           <span class="ai-title">AI 요약</span>
-        </h3>
-        <p>{{ currentEmail.aiSummary }}</p>
+        </div>
+        <div class="ai-summary-content">
+          <p>{{ currentEmail.aiSummary }}</p>
+        </div>
+      </div>
+      
+      <div class="sender-threat" :data-threat-level="getThreatLevelText()">
+        <div class="sender-threat-content">
+          <div class="threat-info-line">
+            <div class="threat-level">
+              <img src="@/assets/icons/shield.png" alt="Shield Icon" class="threat-icon" />
+              <span>{{ getThreatLevelText() }}</span>
+            </div>
+            <div class="threat-stats">
+              <span>신고: {{ getSenderReportCount() }}회</span>
+              <span>최근: {{ getLastActivity() }}</span>
+            </div>
+          </div>
+        </div>
       </div>
       
       <div class="email-body" v-html="currentEmail.html"></div>
@@ -242,7 +259,6 @@ import ComposeEmail from '@/components/ComposeEmail.vue';
 import SpamReportModal from '@/components/SpamReportModal.vue';
 import api from '@/services/api';
 import { useUserStore } from '@/stores/user';
-import { MailWarning } from 'lucide-vue-next';
 
 const userStore = useUserStore();
 
@@ -397,47 +413,46 @@ const currentEmail = computed(() => {
   return emailList.find(email => email.id === selectedEmail.value) || null;
 });
 
-// 스팸 정보를 저장할 ref 추가
 const spamInfo = ref(null);
+const threatInfo = ref(null);
 
-// 스팸 정보를 가져오는 함수 추가
-const fetchSpamInfo = async (email) => {
+const fetchThreatInfo = async (email) => {
   if (!email || !email.email) return;
-  
   try {
     const result = await api.getSpamInfo(email.email);
     const reportCount = result.count || 0;
     
-    // 신고 횟수에 따른 위험 수준 결정
-    let riskLevel = '낮음';
-    if (reportCount >= 50) {
-      riskLevel = '높음';
-    } else if (reportCount >= 10) {
-      riskLevel = '중간';
-    } else if (reportCount == 0) {
-      riskLevel = '정보 없음';
+    // 신고 횟수에 따른 위협 수준 결정
+    let level = '정보 없음';
+    if (reportCount > 0) {
+      if (reportCount >= 50) {
+        level = '높음';
+      } else if (reportCount >= 10) {
+        level = '중간';
+      } else {
+        level = '낮음';
+      }
     }
-
-    spamInfo.value = {
-      riskLevel,
-      type: result.topic || '알 수 없음',
-      reportCount
+    
+    threatInfo.value = {
+      level: level,
+      reportCount: reportCount,
     };
   } catch (error) {
-    console.error('Error fetching spam info:', error);
-    spamInfo.value = null;
+    console.error('Error fetching threat info:', error);
+    threatInfo.value = null;
   }
 };
 
-// 이메일 선택 시 스팸 정보 가져오기
+// 이메일 선택 시 위협 정보 가져오기
 watch(selectedEmail, async (newEmailId) => {
-  if (newEmailId && currentFolder.value === 'spam') {
+  if (newEmailId) {
     const email = currentEmail.value;
     if (email) {
-      await fetchSpamInfo(email);
+      await fetchThreatInfo(email);
     }
   } else {
-    spamInfo.value = null;
+    threatInfo.value = null;
   }
 });
 
@@ -447,6 +462,31 @@ const noEmailsMessage = computed(() => {
   }
   return currentFolder.value === 'inbox' ? '받은 메일이 없습니다.' : '스팸 메일이 없습니다.';
 });
+
+// 위협 수준 관련 메서드 수정
+const getThreatLevelText = () => {
+  if (!threatInfo.value) return '정보 없음';
+  return threatInfo.value.level;
+};
+
+const getThreatLevelClass = () => {
+  if (!threatInfo.value) return 'low';
+  const level = threatInfo.value.level;
+  if (level === '매우 높음') return 'very-high';
+  if (level === '높음') return 'high';
+  if (level === '중간') return 'medium';
+  return 'low';
+};
+
+const getSenderReportCount = () => {
+  if (!threatInfo.value) return 0;
+  return threatInfo.value.reportCount;
+};
+
+const getLastActivity = () => {
+  if (!threatInfo.value) return '알 수 없음';
+  return threatInfo.value.lastActivity;
+};
 
 // Methods
 const selectFolder = (folderId) => {
@@ -1288,32 +1328,140 @@ const restoreEmail = async (emailId) => {
   color: #334155;
 }
 
+/* Enhanced AI Summary Section */
 .ai-summary {
-  background-color: #f0f9ff;
+  background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
   border-radius: 0.75rem;
-  padding: 1.25rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(3, 105, 161, 0.15);
+  border-left: 5px solid #3b82f6;
+  overflow: hidden;
+  animation: pulse 2s infinite alternate;
 }
 
-.ai-summary h3 {
+@keyframes pulse {
+  0% {
+    box-shadow: 0 4px 12px rgba(3, 105, 161, 0.15);
+  }
+  100% {
+    box-shadow: 0 8px 24px rgba(3, 105, 161, 0.25);
+  }
+}
+
+.ai-summary-header {
+  background-color: rgba(59, 130, 246, 0.15);
+  padding: 0.75rem 1.25rem;
   display: flex;
   align-items: center;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #0369a1;
-  margin: 0 0 0.75rem 0;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.ai-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 0.75rem;
 }
 
 .ai-title {
-  margin-left: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  letter-spacing: 0.01em;
 }
 
-.ai-summary p {
+.ai-summary-content {
+  padding: 1.25rem;
+  position: relative;
+}
+
+.ai-summary-content p {
   margin: 0;
-  font-size: 0.875rem;
-  color: #0c4a6e;
+  font-size: 0.9rem;
+  color: #1e40af;
   line-height: 1.6;
+  position: relative;
+  font-weight: 500;
+}
+
+/* Sender Threat Level Section */
+.sender-threat {
+  background-color: #f8fafc;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid #e2e8f0;
+}
+
+.sender-threat-content {
+  display: flex;
+  align-items: center;
+}
+
+.threat-info-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+.threat-level {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.threat-level.low {
+  color: #059669;
+}
+
+.threat-level.medium {
+  color: #d97706;
+}
+
+.threat-level.high {
+  color: #dc2626;
+}
+
+.threat-level.noinfo {
+  color: #64748b;
+}
+
+.threat-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.threat-stats {
+  display: flex;
+  gap: 1rem;
+  color: #64748b;
+}
+
+.threat-stats span {
+  font-size: 0.75rem;
+}
+
+/* 위협 수준에 따른 배경색 추가 */
+.sender-threat[data-threat-level="높음"] {
+  background-color: #fef2f2;
+  border-left-color: #dc2626;
+}
+
+.sender-threat[data-threat-level="중간"] {
+  background-color: #fffbeb;
+  border-left-color: #f59e0b;
+}
+
+.sender-threat[data-threat-level="낮음"] {
+  background-color: #f0fdf4;
+  border-left-color: #10b981;
+}
+
+.sender-threat[data-threat-level="정보 없음"] {
+  background-color: #f8fafc;
+  border-left-color: #64748b;
 }
 
 .spam-info {

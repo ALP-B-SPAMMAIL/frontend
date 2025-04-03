@@ -14,12 +14,12 @@
           <input 
             type="text" 
             v-model="searchQuery" 
-            placeholder="도메인 주소를 입력하세요 (예: example.com)" 
+            placeholder="도메인 주소를 입력하세요 (예: example@gmail.com)" 
             class="search-input"
-            @keyup.enter="searchDomain"
+            @keyup.enter="searchDomain(searchQuery)"
           />
         </div>
-        <button class="search-button" @click="searchDomain">
+        <button class="search-button" @click="searchDomain(searchQuery)">
           검색
         </button>
       </div>
@@ -112,10 +112,10 @@
       </div>
       
       <div class="domains-grid">
-        <div v-for="(domain, index) in topDomains" :key="domain.id" class="domain-card">
+        <div v-for="(domain, index) in topDomains" :key="domain.id" class="domain-card" @click="handleDomainCardClick(domain.domain)">
           <div class="domain-rank">{{ index + 1 }}</div>
           <div class="domain-content">
-            <h3 class="domain-name">{{ domain.domain }}</h3>
+            <h3 class="domain-name">{{ domain.displayDomain }}</h3>
             <div class="domain-stats">
               <div class="stat-item">
                 <img 
@@ -168,6 +168,7 @@ const fetchTopSpam = async () => {
     topDomains.value = result.searchResultDto.map((domain, index) => ({
       id: index + 1,
       domain: domain.sender,
+      displayDomain: domain.sender.includes('<') ? domain.sender.split('<')[1].split('>')[0] : domain.sender,
       riskLevel: domain.count >= 50 ? '높음' : domain.count >= 10 ? '중간' : '낮음',
       reportCount: domain.count,
       type: domain.topic || '알 수 없음',
@@ -183,11 +184,11 @@ onMounted(() => {
   fetchTopSpam();
 });
 
-const searchDomain = async () => {
-  if (!searchQuery.value) return;
-
+const searchDomain = async (domain) => {
+  if (!domain) return;
   try {
-    const result = await api.getSpamInfo(searchQuery.value);
+    console.log(domain);
+    const result = await api.getSpamInfo(domain);
     const reportCount = result.count || 0;
     
     // 신고 횟수에 따른 위험 수준 결정
@@ -201,7 +202,7 @@ const searchDomain = async () => {
     }
 
     searchResult.value = {
-      domain: searchQuery.value,
+      domain: domain,
       reportCount: reportCount,
       type: result.topic || '알 수 없음',
       description: result.reason || '알 수 없음',
@@ -211,6 +212,13 @@ const searchDomain = async () => {
   } catch (error) {
     console.error('Error fetching spam info:', error);
   }
+};
+
+// 도메인 카드 클릭 핸들러 수정
+const handleDomainCardClick = (domain) => {
+  const emailAddress = domain.includes('<') ? domain.split('<')[1].split('>')[0] : domain;
+  searchQuery.value = emailAddress;
+  searchDomain(emailAddress);
 };
 </script>
 
@@ -450,6 +458,7 @@ const searchDomain = async () => {
   border-radius: 0.75rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   overflow: hidden;
+  cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
