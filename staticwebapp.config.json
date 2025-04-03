@@ -1,1 +1,14 @@
-{}
+{
+  "routes": [
+    {
+      "route": "/inbox",
+      "methods": [
+        "get",
+        "post"
+      ],
+      "rewrite": "/welcome",
+      "redirect": "/welcome",
+      "statusCode": 200
+    }
+  ]
+}
