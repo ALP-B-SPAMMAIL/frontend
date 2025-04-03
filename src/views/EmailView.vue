@@ -135,10 +135,10 @@
             <img src="@/assets/icons/reply.png" alt="Reply Icon" class="action-icon" />
             <span>답장</span>
           </button>
-          <button class="action-btn forward-btn">
+          <!-- <button class="action-btn forward-btn">
             <img src="@/assets/icons/forward.png" alt="Forward Icon" class="action-icon" />
             <span>전달</span>
-          </button>
+          </button> -->
           <button v-if="currentFolder === 'spam'" class="action-btn not-spam-btn" @click="markAsNotSpam(currentEmail.id)">
             <img src="@/assets/icons/shield.png" alt="Shield Icon" class="action-icon" />
             <span>스팸 아님</span>

@@ -108,9 +108,6 @@
   const recipients = ref([]);
   const recipientInput = ref('');
 
-  const ccs = ref([]);
-  const ccInput = ref('');
-
   // 답장일 경우 초기 받는 사람 설정
   watch(() => props.isReply, (newVal) => {
     if (newVal && props.replyTo.email) {
@@ -120,7 +117,6 @@
 
   const subject = ref(props.isReply ? `Re: ${props.replyTo.subject || ''}` : '');
   const message = ref('');
-  const attachments = ref([]);
   const isMinimized = ref(false);
 
   // 이메일 주소 추가 함수
@@ -138,16 +134,6 @@
   const removeRecipient = (index) => {
     recipients.value.splice(index, 1);
   };
-
-  const addCc = () => {
-  const email = ccInput.value.trim();
-  if (email && isValidEmail(email) && !ccs.value.includes(email)) {
-    ccs.value.push(email);
-    ccInput.value = '';
-  } else if (email && !isValidEmail(email)) {
-    alert('유효한 이메일 주소를 입력해주세요.');
-  }
-};
 
 const handleBackspace = (event) => {
   if (recipientInput.value === '' && recipients.value.length > 0) {
@@ -176,6 +162,13 @@ const isValidEmail = (email) => {
 
 const closeCompose = () => {
   emit('close');
+};
+
+const resetForm = () => {
+  recipients.value = [];
+  recipientInput.value = '';
+  subject.value = '';
+  message.value = '';
 };
 
 const sendEmail = async () => {
@@ -216,13 +209,16 @@ const sendEmail = async () => {
       emit('send', sendMailDto);
       alert('메일이 성공적으로 전송되었습니다.');
       closeCompose();
+      resetForm();
     } catch (error) {
       console.error('Failed to send email:', error);
       alert('메일 전송에 실패했습니다. 다시 시도해주세요.');
+      resetForm();
     }
   } catch (error) {
     console.error('Failed to send email:', error);
     alert('메일 전송에 실패했습니다. 다시 시도해주세요.');
+    resetForm();
   }
 };
 
