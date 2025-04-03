@@ -250,6 +250,10 @@ onMounted(() => {
   background-color: #f8fafc;
 }
 
+.main-content.no-header {
+  padding: 0;
+}
+
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
@@ -274,18 +278,8 @@ onMounted(() => {
     align-self: flex-end;
   }
 }
+
 .no-header {
   padding: 0;
 }
-
-.main-content {
-  flex: 1;
-  padding: 1.5rem;
-  background-color: #f8fafc;
-}
-
-.main-content.no-header {
-  padding: 0;
-}
-
 </style>

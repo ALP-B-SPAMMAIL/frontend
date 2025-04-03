@@ -100,7 +100,6 @@ spamServerApi.interceptors.request.use(
   }
 );
 
-
 export default {
   async registerUser(userData) {
     try {
@@ -212,7 +211,6 @@ export default {
       });
       return response.data;
     } catch (error) {
-      console.error('Error sending mail:', error);
       throw error;
     }
   },

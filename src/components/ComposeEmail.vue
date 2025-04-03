@@ -149,29 +149,16 @@
   }
 };
 
-// 참조 삭제 함수
-const removeCc = (index) => {
-  ccs.value.splice(index, 1);
-};
-
-// Backspace 키 처리 함수
 const handleBackspace = (event) => {
   if (recipientInput.value === '' && recipients.value.length > 0) {
     recipients.value.pop();
   }
 };
-  
-const handleCcBackspace = (event) => {
-  if (ccInput.value === '' && ccs.value.length > 0) {
-    ccs.value.pop();
-  }
-};
 
-  // 붙여넣기 처리 함수
 const handlePaste = (event) => {
   event.preventDefault();
   const pastedText = event.clipboardData.getData('text');
-  const emails = pastedText.split(/[,;\s]+/); // 쉼표, 세미콜론, 공백으로 분리
+  const emails = pastedText.split(/[,;\s]+/);
   
   emails.forEach(email => {
     const trimmedEmail = email.trim();
@@ -181,26 +168,12 @@ const handlePaste = (event) => {
   });
 };
 
-const handleCcPaste = (event) => {
-  event.preventDefault();
-  const pastedText = event.clipboardData.getData('text');
-  const emails = pastedText.split(/[,;\s]+/); // 쉼표, 세미콜론, 공백으로 분리
-  
-  emails.forEach(email => {
-    const trimmedEmail = email.trim();
-    if (trimmedEmail && isValidEmail(trimmedEmail) && !ccs.value.includes(trimmedEmail)) {
-      ccs.value.push(trimmedEmail);
-    }
-  });
-};
 
-  // 이메일 유효성 검사
 const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
-// Methods
 const closeCompose = () => {
   emit('close');
 };
@@ -255,32 +228,6 @@ const sendEmail = async () => {
 
 const toggleMinimize = () => {
   isMinimized.value = !isMinimized.value;
-};
-  
-const handleFileUpload = (event) => {
-  const files = event.target.files;
-  if (!files.length) return;
-  
-  for (let i = 0; i < files.length; i++) {
-    attachments.value.push(files[i]);
-  }
-  
-  // Reset the input to allow selecting the same file again
-  event.target.value = '';
-};
-
-const removeAttachment = (index) => {
-  attachments.value.splice(index, 1);
-};
-
-const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes';
-  
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 </script>
   

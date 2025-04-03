@@ -344,6 +344,12 @@ const handleSaveMailSettings = async (settings) => {
 }
 
 .btn-danger {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
   background-color: #fee2e2;
   color: #dc2626;
 }

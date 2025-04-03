@@ -478,7 +478,7 @@ const selectFolder = (folderId) => {
 const parseMailSender = (mailSender) => {
   if (!mailSender) return { name: 'Unknown Sender', email: '' };
   
-  // "이름" <이메일> 형식 파싱 (따옴표가 있는 경우)
+  // "이름" <이메일>
   const quotedMatch = mailSender.match(/^"([^"]+)"\s*<(.+)>$/);
   if (quotedMatch) {
     return {
@@ -487,7 +487,7 @@ const parseMailSender = (mailSender) => {
     };
   }
   
-  // 이름 <이메일> 형식 파싱 (따옴표가 없는 경우)
+  // 이름 <이메일>
   const unquotedMatch = mailSender.match(/^([^<]+)\s*<(.+)>$/);
   if (unquotedMatch) {
     return {
@@ -645,7 +645,6 @@ const formatArrivedAt = (arrivedAt) => {
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
-    // 페이지 변경 시 스크롤을 맨 위로 이동
     const emailListContent = document.querySelector('.email-list-content');
     if (emailListContent) {
       emailListContent.scrollTop = 0;
@@ -709,14 +708,11 @@ const markAsSpam = () => {
 
 const handleSpamReport = async (reportData) => {
   try {
-    console.log(reportData);
     await api.reportSpam(reportData.emailId, reportData.reason);
-    
     fetchEmails();
     showSpamReportModal.value = false;
     alert('스팸 신고가 완료되었습니다.');
   } catch (error) {
-    console.error('스팸 신고 중 오류 발생:', error);
     alert('스팸 신고 중 오류가 발생했습니다.');
   }
 };
@@ -724,14 +720,12 @@ const handleSpamReport = async (reportData) => {
 const markAsNotSpam = async (emailId) => {
   try {
     await api.deleteSpamFlag(emailId);
-
     await fetchEmails();
     
     if (selectedEmail.value === emailId) {
       selectedEmail.value = null;
     }
   } catch (error) {
-    console.error('스팸 플래그 삭제 중 오류 발생:', error);
     alert('오류가 발생했습니다.');
   }
 };
@@ -746,12 +740,10 @@ const deleteEmail = async (emailId) => {
       await fetchEmails();
     }
     
-    // 선택 해제
     if (selectedEmail.value === emailId) {
       selectedEmail.value = null;
     }
   } catch (error) {
-    console.error('Error deleting email:', error);
     alert('메일 삭제 중 오류가 발생했습니다.');
   }
 };
@@ -759,16 +751,12 @@ const deleteEmail = async (emailId) => {
 const restoreEmail = async (emailId) => {
   try {
     await api.restoreMail(emailId);
-    
-    // 메일 목록 전체를 다시 가져옴
     await fetchEmails();
     
-    // 선택 해제
     if (selectedEmail.value === emailId) {
       selectedEmail.value = null;
     }
   } catch (error) {
-    console.error('Error restoring email:', error);
     alert('메일 복구 중 오류가 발생했습니다.');
   }
 };
@@ -782,7 +770,6 @@ const restoreEmail = async (emailId) => {
   height: calc(100vh - 5rem);
   background-color: #e2e8f0;
   border-radius: 0.5rem;
-  /* overflow: hidden; */
 }
 
 /* Email Sidebar */
