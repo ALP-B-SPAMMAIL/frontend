@@ -96,7 +96,7 @@
 
     <div class="top-domains-section">
       <div class="section-header">
-        <h2>TOP 5 피싱 도메인</h2>
+        <h2>TOP {{ topDomains.length }} 피싱 도메인</h2>
         <p class="update-info">마지막 업데이트: {{ lastUpdated }}</p>
       </div>
       
@@ -160,7 +160,7 @@ const fetchTopSpam = async () => {
       id: index + 1,
       domain: domain.sender,
       displayDomain: domain.sender.includes('<') ? domain.sender.split('<')[1].split('>')[0] : domain.sender,
-      riskLevel: domain.count >= 50 ? '높음' : domain.count >= 10 ? '중간' : '낮음',
+      riskLevel: domain.count >= 10 ? '높음' : domain.count >= 3 ? '중간' : '낮음',
       reportCount: domain.count,
       type: domain.topic || '알 수 없음',
       description: domain.reason || '알 수 없음'
