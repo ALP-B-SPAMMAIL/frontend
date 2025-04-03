@@ -3,7 +3,7 @@
     <div class="section-header">
       <h1>스팸 정보 제공</h1>
       <p class="section-description">
-        의심스러운 도메인을 검색하여 피싱 여부를 확인하거나 최근 유행하는 피싱 도메인을 확인하세요.
+        의심스러운 이메일 주소를 검색하여 피싱 여부를 확인하거나 최근 유행하는 피싱 이메일 도메인을 확인하세요.
       </p>
     </div>
 
@@ -14,7 +14,7 @@
           <input 
             type="text" 
             v-model="searchQuery" 
-            placeholder="도메인 주소를 입력하세요 (예: example@gmail.com)" 
+            placeholder="이메일 주소를 입력하세요 (예: example@gmail.com)" 
             class="search-input"
             @keyup.enter="searchDomain(searchQuery)"
           />
@@ -96,7 +96,7 @@
 
     <div class="top-domains-section">
       <div class="section-header">
-        <h2>TOP {{ topDomains.length }} 피싱 도메인</h2>
+        <h2>TOP {{ topDomains.length }} 피싱 이메일</h2>
         <p class="update-info">마지막 업데이트: {{ lastUpdated }}</p>
       </div>
       
