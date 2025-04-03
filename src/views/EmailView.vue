@@ -31,10 +31,9 @@
               class="folder-icon"
             />
             <span>{{ folder.name }}</span>
-            <!-- 폴더에 이메일이 있는 경우에만 카운트 표시 -->
-            <span v-if="folderCounts[folder.id] > 0" class="folder-count">
+            <!-- <span v-if="folderCounts[folder.id] > 0" class="folder-count">
               {{ folderCounts[folder.id] }}
-            </span>
+            </span> -->
           </li>
         </ul>
       </nav>
