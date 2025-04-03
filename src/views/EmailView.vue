@@ -1125,6 +1125,7 @@ const restoreEmail = async (emailId) => {
   position: relative;
   font-weight: 500;
   background-color: #ffffff;
+  white-space: pre-line;
 }
 
 .no-emails {
@@ -1343,6 +1344,7 @@ const restoreEmail = async (emailId) => {
   line-height: 1.6;
   position: relative;
   font-weight: 500;
+  white-space: pre-line;
 }
 
 .sender-threat {
