@@ -131,7 +131,7 @@
     <div class="email-detail" v-if="currentEmail">
       <div class="email-actions">
         <template v-if="currentFolder !== 'trash'">
-          <button class="action-btn reply-btn" @click="replyToCurrentEmail(currentEmail)">
+          <button v-if="currentFolder === 'inbox'" class="action-btn reply-btn" @click="replyToCurrentEmail(currentEmail)">
             <img src="@/assets/icons/reply.png" alt="Reply Icon" class="action-icon" />
             <span>답장</span>
           </button>
@@ -263,35 +263,6 @@ const folders = [
   { id: 'spam', name: '스팸 메일함', icon: 'shield'},
   { id: 'trash', name: '휴지통', icon: 'trash' }
 ];
-
-const folderCounts = computed(() => {
-  const counts = {
-    inbox: 0,
-    spam: 0,
-    trash: 0
-  };
-  
-  // 각 폴더별로 해당하는 메일 리스트만 카운트
-  emails.value.forEach(email => {
-    if (email.folder === 'inbox') {
-      counts.inbox++;
-    }
-  });
-  
-  spamEmails.value.forEach(email => {
-    if (email.folder === 'spam') {
-      counts.spam++;
-    }
-  });
-
-  trashEmails.value.forEach(email => {
-    if (email.folder === 'trash') {
-      counts.trash++;
-    }
-  });
-  
-  return counts;
-});
 
 const emails = ref([]);
 const spamEmails = ref([]);
