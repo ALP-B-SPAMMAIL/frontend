@@ -74,7 +74,6 @@
               <span>유형:</span>
             </div>
             <div class="detail-value">{{ searchResult.type }}</div>
-            <!-- <div class="detail-value">{{ searchResult.description }}</div> -->
           </div>
           
           <div class="detail-item">
