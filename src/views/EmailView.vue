@@ -1295,7 +1295,7 @@ const restoreEmail = async (emailId) => {
 .ai-summary {
   background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
   border-radius: 0.75rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   box-shadow: 0 4px 12px rgba(3, 105, 161, 0.15);
   border-left: 5px solid #3b82f6;
   overflow: hidden;
@@ -1313,33 +1313,33 @@ const restoreEmail = async (emailId) => {
 
 .ai-summary-header {
   background-color: rgba(59, 130, 246, 0.15);
-  padding: 0.75rem 1.25rem;
+  padding: 0.5rem 0.75rem;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  border-bottom: 0.5px solid rgba(59, 130, 246, 0.2);
 }
 
 .ai-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 0.75rem;
+  width: 20px;
+  height: 20px;
+  margin-right: 0.5rem;
 }
 
 .ai-title {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #1d4ed8;
   letter-spacing: 0.01em;
 }
 
 .ai-summary-content {
-  padding: 1.25rem;
+  padding: 0.75rem;
   position: relative;
 }
 
 .ai-summary-content p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #1e40af;
   line-height: 1.6;
   position: relative;
