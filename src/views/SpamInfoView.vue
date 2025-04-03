@@ -38,7 +38,7 @@
           <div class="detail-item">
             <div class="detail-label">
               <img 
-                src="@/assets/icons/shield.png" 
+                src="@/assets/icons/report.png" 
                 alt="Shield Icon" 
                 width="16" 
                 height="16"
@@ -53,7 +53,7 @@
           <div class="detail-item">
             <div class="detail-label">
               <img 
-                src="@/assets/icons/report.png" 
+                src="@/assets/icons/siren.png" 
                 alt="Report Icon" 
                 width="16" 
                 height="16"
@@ -108,7 +108,7 @@
             <div class="domain-stats">
               <div class="stat-item">
                 <img 
-                  src="@/assets/icons/shield.png" 
+                  src="@/assets/icons/report.png" 
                   alt="Shield Icon" 
                   width="16" 
                   height="16"
@@ -117,7 +117,7 @@
               </div>
               <div class="stat-item">
                 <img 
-                  src="@/assets/icons/report.png" 
+                  src="@/assets/icons/siren.png" 
                   alt="Report Icon" 
                   width="16" 
                   height="16"
