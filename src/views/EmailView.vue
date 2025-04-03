@@ -202,7 +202,6 @@
             </div>
             <div class="threat-stats">
               <span>신고: {{ getSenderReportCount() }}회</span>
-              <span>최근: {{ getLastActivity() }}</span>
             </div>
           </div>
         </div>
@@ -331,7 +330,6 @@ onMounted(() => {
   fetchEmails();
 });
 
-// Computed properties
 const folderTitle = computed(() => {
   const folder = folders.find(f => f.id === currentFolder.value);
   return folder ? folder.name : '';
@@ -363,19 +361,17 @@ const filteredEmails = computed(() => {
   });
 });
 
-// 페이지 이메일 목록
 const paginatedEmails = computed(() => {
   const startIndex = (currentPage.value - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   return filteredEmails.value.slice(startIndex, endIndex);
 });
 
-// 총 페이지 수
 const totalPages = computed(() => {
   return Math.ceil(filteredEmails.value.length / itemsPerPage);
 });
 
-// 표시할 페이지 번호 (최대 5개)
+// 표시할 페이지 번호 계산
 const displayedPages = computed(() => {
   if (totalPages.value <= 5) {
     return Array.from({ length: totalPages.value }, (_, i) => i + 1);
@@ -444,7 +440,7 @@ const fetchThreatInfo = async (email) => {
   }
 };
 
-// 이메일 선택 시 위협 정보 가져오기
+// Selected Email Threat Info 가져오기
 watch(selectedEmail, async (newEmailId) => {
   if (newEmailId) {
     const email = currentEmail.value;
@@ -469,26 +465,11 @@ const getThreatLevelText = () => {
   return threatInfo.value.level;
 };
 
-const getThreatLevelClass = () => {
-  if (!threatInfo.value) return 'low';
-  const level = threatInfo.value.level;
-  if (level === '매우 높음') return 'very-high';
-  if (level === '높음') return 'high';
-  if (level === '중간') return 'medium';
-  return 'low';
-};
-
 const getSenderReportCount = () => {
   if (!threatInfo.value) return 0;
   return threatInfo.value.reportCount;
 };
 
-const getLastActivity = () => {
-  if (!threatInfo.value) return '알 수 없음';
-  return threatInfo.value.lastActivity;
-};
-
-// Methods
 const selectFolder = (folderId) => {
   currentFolder.value = folderId;
   selectedEmail.value = null;
@@ -532,14 +513,13 @@ const parseMailSender = (mailSender) => {
 
 const fetchEmails = async () => {
   try {
-    // 일반 메일 가져오기
+    // Normal Mail
     const normalMailResponse = await api.getNormalMailList(userStore.userCode, 0);
     if (!normalMailResponse) {
       console.error('Invalid response format');
       return;
     }
 
-    // 모든 페이지의 메일을 가져오기
     const allNormalMails = [];
     for (let page = 0; page < normalMailResponse.totalPages; page++) {
       const response = await api.getNormalMailList(userStore.userCode, page);
@@ -548,9 +528,12 @@ const fetchEmails = async () => {
       }
     }
 
-    // 일반 메일 매핑
     emails.value = allNormalMails.map(mail => {
       const senderInfo = parseMailSender(mail.mailSender);
+      const formattedSummary = mail.mailSummarize 
+        ? mail.mailSummarize.split('-').map(item => item.trim()).filter(item => item).join('\n- ')
+        : null;
+      
       return {
         id: mail.mailId,
         sender: senderInfo.name,
@@ -561,18 +544,17 @@ const fetchEmails = async () => {
         time: formatArrivedAt(mail.arrivedAt) || '시간 정보 없음',
         folder: 'inbox',
         read: false,
-        aiSummary: mail.mailSummarize || null
+        aiSummary: formattedSummary
       };
     });
 
-    // 스팸 메일 가져오기
+    // Spam Mail
     const spamMailResponse = await api.getSpamMailList(userStore.userCode, 0);
     if (!spamMailResponse) {
       console.error('Invalid response format');
       return;
     }
 
-    // 모든 페이지의 스팸 메일을 가져오기
     const allSpamMails = [];
     for (let page = 0; page < spamMailResponse.totalPages; page++) {
       const response = await api.getSpamMailList(userStore.userCode, page);
@@ -581,9 +563,12 @@ const fetchEmails = async () => {
       }
     }
 
-    // 스팸 메일 매핑
     spamEmails.value = allSpamMails.map(mail => {
       const senderInfo = parseMailSender(mail.mailSender);
+      const formattedSummary = mail.mailSummarize 
+        ? mail.mailSummarize.split('-').map(item => item.trim()).filter(item => item).join('\n- ')
+        : null;
+      
       return {
         id: mail.mailId,
         sender: senderInfo.name,
@@ -594,11 +579,11 @@ const fetchEmails = async () => {
         time: formatArrivedAt(mail.arrivedAt) || '시간 정보 없음',
         folder: 'spam',
         read: false,
-        aiSummary: mail.mailSummarize || null
+        aiSummary: formattedSummary
       };
     });
 
-    // 휴지통 메일 가져오기
+    // Trash Mail
     const trashMailResponse = await api.getTrashcanMails(userStore.userCode, 0);
     if (trashMailResponse) {
       const allTrashMails = [];
@@ -609,9 +594,12 @@ const fetchEmails = async () => {
         }
       }
 
-      // 휴지통 메일 매핑
       trashEmails.value = allTrashMails.map(mail => {
         const senderInfo = parseMailSender(mail.mailSender);
+        const formattedSummary = mail.mailSummarize 
+          ? mail.mailSummarize.split('-').map(item => item.trim()).filter(item => item).join('\n- ')
+          : null;
+        
         return {
           id: mail.mailId,
           sender: senderInfo.name,
@@ -622,7 +610,7 @@ const fetchEmails = async () => {
           time: formatArrivedAt(mail.arrivedAt) || '시간 정보 없음',
           folder: 'trash',
           read: false,
-          aiSummary: mail.mailSummarize || null
+          aiSummary: formattedSummary
         };
       });
     }
@@ -654,7 +642,6 @@ const formatArrivedAt = (arrivedAt) => {
   }
 };
 
-// 페이지 이동 함수
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
@@ -666,13 +653,10 @@ const goToPage = (page) => {
   }
 };
 
-// Updated to toggle email selection
 const toggleEmailSelection = (emailId) => {
-  // If the email is already selected, deselect it
   if (selectedEmail.value === emailId) {
     selectedEmail.value = null;
   } else {
-    // Otherwise select it and mark as read
     selectedEmail.value = emailId;
     let email;
     switch (currentFolder.value) {
@@ -693,12 +677,10 @@ const toggleEmailSelection = (emailId) => {
 
 // Track mouse position for tooltip
 const updateMousePosition = (event) => {
-  // Offset from the cursor to prevent covering it
   mouseX.value = event.clientX + 10;
   mouseY.value = event.clientY + 10;
 };
 
-// Compose email methods
 const openComposeEmail = () => {
   isReply.value = false;
   replyToEmail.value = {};
@@ -717,11 +699,7 @@ const closeComposeEmail = () => {
 
 const handleSendEmail = (emailData) => {
   console.log('Sending email:', emailData);
-  // Here you would typically send the email via an API
-  // For now, we'll just log it and close the compose window
   showComposeEmail.value = false;
-  
-  // You could add a notification here to show the email was sent
   alert('이메일이 성공적으로 발송되었습니다.');
 };
 
@@ -745,13 +723,10 @@ const handleSpamReport = async (reportData) => {
 
 const markAsNotSpam = async (emailId) => {
   try {
-    // API 요청으로 스팸 플래그 삭제
     await api.deleteSpamFlag(emailId);
-    
-    // 성공적으로 처리되면 메일 목록을 다시 가져옴
+
     await fetchEmails();
     
-    // 선택 해제
     if (selectedEmail.value === emailId) {
       selectedEmail.value = null;
     }
@@ -764,14 +739,10 @@ const markAsNotSpam = async (emailId) => {
 const deleteEmail = async (emailId) => {
   try {
     if (currentFolder.value === 'trash') {
-      // 휴지통에서 완전 삭제
       await api.permanentlyDeleteMail(emailId);
-      // 메일 목록 전체를 다시 가져옴
       await fetchEmails();
     } else {
-      // 휴지통으로 이동
       await api.deleteMail(emailId);
-      // 메일 목록 전체를 다시 가져옴
       await fetchEmails();
     }
     
@@ -1124,15 +1095,16 @@ const restoreEmail = async (emailId) => {
 
 /* AI Summary Tooltip */
 .ai-summary-tooltip {
-  position: fixed; /* Changed from absolute to fixed for better positioning */
-  width: 280px;
-  background-color: #f0f9ff;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 1rem;
+  position: fixed;
+  width: 320px;
+  background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(3, 105, 161, 0.15);
+  border-left: 5px solid #3b82f6;
+  padding: 0;
   z-index: 100;
-  border-left: 3px solid #0369a1;
   animation: fadeIn 0.2s ease-in-out;
+  overflow: hidden;
 }
 
 @keyframes fadeIn {
@@ -1141,24 +1113,35 @@ const restoreEmail = async (emailId) => {
 }
 
 .tooltip-header {
+  background-color: rgba(59, 130, 246, 0.15);
+  padding: 0.75rem 1.25rem;
   display: flex;
   align-items: center;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #0369a1;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .tooltip-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 0.5rem;
+  width: 24px;
+  height: 24px;
+  margin-right: 0.75rem;
+}
+
+.tooltip-header span {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  letter-spacing: 0.01em;
 }
 
 .ai-summary-tooltip p {
   margin: 0;
-  font-size: 0.875rem;
-  color: #0369a1;
-  line-height: 1.5;
+  padding: 1.25rem;
+  font-size: 0.9rem;
+  color: #1e40af;
+  line-height: 1.6;
+  position: relative;
+  font-weight: 500;
+  background-color: #ffffff;
 }
 
 .no-emails {
