@@ -134,18 +134,6 @@
             {{ passwordsMatch ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.' }}
           </p>
         </div>
-        <!-- <div class="form-group timezone-group">
-          <label for="timezone">시간대</label>
-          <div class="input-with-icon">
-            <img src="@/assets/icons/timezone.png" alt="Timezone Icon" class="input-icon" width="18" height="18" />
-            <select id="timezone" v-model="formData.timezone" class="form-select">
-              <option value="Asia/Seoul">서울 (GMT+9)</option>
-              <option value="America/New_York">뉴욕 (GMT-5)</option>
-              <option value="Europe/London">런던 (GMT+0)</option>
-              <option value="Asia/Tokyo">도쿄 (GMT+9)</option>
-            </select>
-          </div>
-        </div> -->
         
         <div class="form-group terms-group">
           <label class="checkbox-label">
@@ -240,102 +228,6 @@
         </div>
       </div>
       
-      <!-- Step 3: Mail Server Settings
-      <div v-if="currentStep === 2" class="register-form">
-        <div class="form-group">
-          <label for="protocol">프로토콜</label>
-          <div class="radio-group">
-            <label class="radio-label">
-              <input 
-                type="radio" 
-                id="protocol-imaps" 
-                name="protocol" 
-                value="imaps" 
-                v-model="formData.mailSettings.protocol"
-              />
-              <span>IMAPS</span>
-            </label>
-            <label class="radio-label">
-              <input 
-                type="radio" 
-                id="protocol-pop3" 
-                name="protocol" 
-                value="pop3" 
-                v-model="formData.mailSettings.protocol"
-              />
-              <span>POP3</span>
-            </label>
-          </div>
-          <p class="form-help">
-            <span v-if="formData.mailSettings.protocol === 'imaps'">IMAPS: 서버에 이메일을 보관하고 여러 기기에서 동기화합니다.</span>
-            <span v-else-if="formData.mailSettings.protocol === 'pop3'">POP3: 이메일을 다운로드하고 서버에서 삭제합니다.</span>
-            <span v-else>프로토콜을 선택하세요.</span>
-          </p>
-        </div>
-        
-        <div class="form-group">
-          <label for="server">메일 서버 주소</label>
-          <div class="input-with-icon">
-            <img src="@/assets/icons/server.png" alt="Server Icon" class="input-icon" width="18" height="18" />
-            <input 
-              type="text" 
-              id="server" 
-              v-model="formData.mailSettings.server" 
-              placeholder="예: imap.gmail.com 또는 pop.gmail.com" 
-              class="form-input"
-            />
-          </div>
-          <p class="form-help">
-            메일 서비스 제공자의 서버 주소를 입력하세요. (예: Gmail, Naver, Outlook 등)
-          </p>
-        </div>
-        
-        <div class="form-group">
-          <label for="mail-email">이메일 주소</label>
-          <div class="input-with-icon">
-            <img src="@/assets/icons/mail.png" alt="Email Icon" class="input-icon" width="18" height="18" />
-            <input 
-              type="email" 
-              id="mail-email" 
-              v-model="formData.mailSettings.email" 
-              placeholder="이메일 주소를 입력하세요" 
-              class="form-input"
-            />
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="app-password">앱 비밀번호</label>
-          <div class="input-with-icon">
-            <img src="@/assets/icons/lock.png" alt="Password Icon" class="input-icon" width="18" height="18" />
-            <input 
-              :type="showAppPassword ? 'text' : 'password'" 
-              id="app-password" 
-              v-model="formData.mailSettings.password" 
-              placeholder="앱 비밀번호를 입력하세요" 
-              class="form-input"
-            />
-            <button 
-              type="button" 
-              class="password-toggle" 
-              @click="showAppPassword = !showAppPassword"
-            >
-              <img v-if="showAppPassword" src="@/assets/icons/showpw.png" alt="Show Password" width="18" height="18" />
-              <img v-else src="@/assets/icons/hidepw.png" alt="Hide Password" width="18" height="18" />
-            </button>
-          </div>
-          <p class="form-help">
-            일반 계정 비밀번호가 아닌 메일 서비스에서 제공하는 앱 비밀번호를 입력하세요.
-            <a href="#" class="help-link" @click.prevent="showAppPasswordHelp = true">앱 비밀번호란?</a>
-          </p>
-        </div>
-        
-        <div class="form-navigation">
-          <button type="button" class="btn-secondary" @click="prevStep">이전</button>
-          <button type="button" class="btn-primary" @click="handleMailInfo">회원가입 완료</button>
-        </div>
-      </div>
-       -->
       <div class="register-footer">
         <p>이미 계정이 있으신가요? <router-link to="/login" class="login-link">로그인</router-link></p>
       </div>
@@ -451,46 +343,6 @@
         </div>
       </div>
     </div>
-    
-    <!-- 앱 비밀번호 도움말 모달 -->
-    <div v-if="showAppPasswordHelp" class="modal-overlay" @click="showAppPasswordHelp = false">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h3>앱 비밀번호란?</h3>
-          <button class="modal-close" @click="showAppPasswordHelp = false">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p>앱 비밀번호는 메일 서비스 제공자(Gmail, Naver 등)가 제공하는 특별한 비밀번호로, 보안이 강화된 계정에서 외부 앱이 메일에 접근할 수 있도록 합니다.</p>
-          
-          <h4>앱 비밀번호 생성 방법:</h4>
-          
-          <div class="provider-info">
-            <h5>Gmail</h5>
-            <ol>
-              <li>Google 계정 관리 페이지에 접속</li>
-              <li>보안 탭 선택</li>
-              <li>2단계 인증 활성화</li>
-              <li>'앱 비밀번호' 선택</li>
-              <li>앱 이름 입력 후 생성</li>
-            </ol>
-          </div>
-          
-          <div class="provider-info">
-            <h5>Naver</h5>
-            <ol>
-              <li>네이버 메일 설정에 접속</li>
-              <li>POP3/IMAP 설정 선택</li>
-              <li>'메일 앱 비밀번호' 생성</li>
-            </ol>
-          </div>
-          
-          <p class="warning-text">주의: 앱 비밀번호는 일반 비밀번호와 달리 노출되어도 계정 접근이 제한적이지만, 안전하게 보관하세요.</p>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-primary" @click="showAppPasswordHelp = false">확인</button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -498,17 +350,12 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
-// import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
-// const userStore = useUserStore();
 
-// Step management
 const steps = ['기본 정보', '추가 정보'];
-// const steps = ['기본 정보', '추가 정보', '메일 서버 설정'];
 const currentStep = ref(0);
 
-// Form data
 const formData = ref({
   name: '',
   id: '',
@@ -516,13 +363,6 @@ const formData = ref({
   password: '',
   confirmPassword: '',
   agreeTerms: false,
-  
-  mailSettings: {
-    protocol: 'imaps',
-    server: '',
-    email: '',
-    password: ''
-  },
   
   personalInfo: {
     birthdate: '',
@@ -532,18 +372,14 @@ const formData = ref({
   }
 });
 
-// UI state
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
-const showAppPassword = ref(false);
 const showTermsModal = ref(false);
 const showPrivacyModal = ref(false);
-const showAppPasswordHelp = ref(false);
 const birthYear = ref('');
 const birthMonth = ref('');
 const birthDay = ref('');
 const gender = ref('');
-const userCode = ref(0);
 
 const passwordStrength = ref(0);
 const strengthClass = ref('');
@@ -586,13 +422,11 @@ const checkPasswordStrength = () => {
     strengthText.value = '강함';
   }
   
-  // 비밀번호가 변경되면 일치 여부도 체크
   if (formData.value.confirmPassword) {
     checkPasswordMatch();
   }
 };
 
-// 비밀번호 일치 여부 체크 함수
 const checkPasswordMatch = () => {
   if (!formData.value.confirmPassword) {
     passwordsMatch.value = true;
@@ -633,7 +467,6 @@ if (formData.value.personalInfo.gender) {
   gender.value = formData.value.personalInfo.gender;
 }
 
-// Navigation methods
 const nextStep = () => {
   if (currentStep.value < steps.length - 1) {
     currentStep.value++;
@@ -649,7 +482,6 @@ const prevStep = () => {
 };
 
 const goToStep = (step) => {
-  // Only allow going to steps that have been completed or the current step
   if (step <= currentStep.value) {
     currentStep.value = step;
     window.scrollTo(0, 0);
@@ -678,41 +510,14 @@ const handleRegister = async () => {
 
     const result = await api.registerUser(payload);
     console.log('회원가입 성공:', result);
-    userCode.value = result.userId;
     alert('회원가입이 완료되었습니다.');
     router.push('/login');
-    // 회원가입 성공 시 Step 3로 이동
-    // currentStep.value = 2;
   } catch (error) {
     console.error('회원가입 실패:', error);
     alert(`회원가입 실패: ${error.message || '서버 오류'}`);
-    // 회원가입 실패 시 Step 1로 이동
     currentStep.value = 0;
   }
 };
-
-const handleMailInfo = async () => {
-  try {
-    const mailInfoPayload = {
-      userId: userCode.value,
-      protocolType: formData.value.mailSettings.protocol,
-      serverAddress: formData.value.mailSettings.server,
-      emailAddress: formData.value.mailSettings.email,
-      emailPassword: formData.value.mailSettings.password,
-    };
-
-    console.log('메일 서버 설정 데이터:', mailInfoPayload);
-
-    const result = await api.updateMailInfo(mailInfoPayload);
-    console.log('메일 서버 설정 성공:', result);
-
-    // 메일 서버 설정 성공 후 로그인 페이지로 이동
-    router.push('/login');
-  } catch (error) {
-    console.error('메일 서버 설정 실패:', error);
-    alert(`메일 서버 설정 실패: ${error.message || '서버 오류'}`);
-  }
-}
 </script>
 
 <style scoped>
@@ -1083,7 +888,6 @@ const handleMailInfo = async () => {
   text-decoration: underline;
 }
 
-/* 모달 스타일 */
 .modal-overlay {
   position: fixed;
   top: 0;

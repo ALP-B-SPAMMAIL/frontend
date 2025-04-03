@@ -772,7 +772,6 @@ const restoreEmail = async (emailId) => {
   border-radius: 0.5rem;
 }
 
-/* Email Sidebar */
 .email-sidebar {
   background-color: #ffffff;
   display: flex;
@@ -870,7 +869,7 @@ const restoreEmail = async (emailId) => {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  flex-shrink: 0; /* 헤더가 줄어들지 않도록 설정 */
+  flex-shrink: 0;
 }
 
 .email-list-header h2 {
@@ -912,11 +911,11 @@ const restoreEmail = async (emailId) => {
 }
 
 .refresh-icon {
-  width: 16px; /* 원하는 크기로 설정 */
+  width: 16px;
   height: 16px;
   vertical-align: middle;
-  border: none; /* 테두리 제거 */
-  background: transparent; /* 배경 제거 */
+  border: none;
+  background: transparent;
 }
 
 .refresh-icon:hover {
@@ -926,9 +925,9 @@ const restoreEmail = async (emailId) => {
 
 .email-list-content {
   flex: 1;
-  overflow-y: auto; /* 스크롤 적용 */
-  -webkit-overflow-scrolling: touch; /* iOS 스크롤 부드럽게 */
-  scroll-behavior: smooth; /* 부드러운 스크롤 효과 */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 .email-item {
@@ -939,7 +938,7 @@ const restoreEmail = async (emailId) => {
   cursor: pointer;
   transition: background-color 0.2s;
   position: relative;
-  min-height: 4rem; /* 최소 높이 설정 */
+  min-height: 4rem;
 }
 
 .email-item:hover {
@@ -1009,7 +1008,6 @@ const restoreEmail = async (emailId) => {
   color: #64748b;
 }
 
-/* 페이지네이션 컨트롤 */
 .pagination-controls {
   display: flex;
   align-items: center;
@@ -1080,7 +1078,6 @@ const restoreEmail = async (emailId) => {
   border-color: #1e3a8a;
 }
 
-/* AI Summary Tooltip */
 .ai-summary-tooltip {
   position: fixed;
   width: 320px;
@@ -1148,7 +1145,6 @@ const restoreEmail = async (emailId) => {
   margin-bottom: 1rem;
 }
 
-/* Email Detail */
 .email-detail {
   background-color: #ffffff;
   padding: 1.5rem;
@@ -1187,7 +1183,6 @@ const restoreEmail = async (emailId) => {
   vertical-align: middle;
 }
 
-/* Redesigned Email Actions */
 .email-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1211,7 +1206,6 @@ const restoreEmail = async (emailId) => {
   transition: all 0.2s ease;
 }
 
-/* 기본 상태는 무색 */
 .reply-btn:hover {
   background-color: #f0f9ff;
   color: #0369a1;
@@ -1298,7 +1292,6 @@ const restoreEmail = async (emailId) => {
   color: #334155;
 }
 
-/* Enhanced AI Summary Section */
 .ai-summary {
   background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
   border-radius: 0.75rem;
@@ -1353,7 +1346,6 @@ const restoreEmail = async (emailId) => {
   font-weight: 500;
 }
 
-/* Sender Threat Level Section */
 .sender-threat {
   background-color: #f8fafc;
   border-radius: 0.5rem;
@@ -1413,7 +1405,6 @@ const restoreEmail = async (emailId) => {
   font-size: 0.75rem;
 }
 
-/* 위협 수준에 따른 배경색 추가 */
 .sender-threat[data-threat-level="높음"] {
   background-color: #fef2f2;
   border-left-color: #dc2626;
@@ -1482,7 +1473,6 @@ const restoreEmail = async (emailId) => {
   font-weight: 600;
 }
 
-/* 스크롤바 스타일링 */
 .email-list-content::-webkit-scrollbar {
   width: 8px;
 }
@@ -1518,7 +1508,7 @@ const restoreEmail = async (emailId) => {
     width: calc(100% - 590px);
     z-index: 200;
     box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
-    transform: translateX(0); /* Changed from translateX(100%) to always show */
+    transform: translateX(0);
     transition: transform 0.3s ease;
   }
 }
@@ -1562,14 +1552,9 @@ const restoreEmail = async (emailId) => {
     background: white;
     z-index: 50;
     overflow-y: auto;
-    transform: translateX(0); /* Changed from translateX(100%) to always show */
+    transform: translateX(0);
     transition: transform 0.3s ease;
   }
-
-  /* Remove the .email-detail.show class since we want it always visible */
-  /* .email-detail.show {
-    transform: translateX(0);
-  } */
 
   .email-detail-header {
     position: sticky;

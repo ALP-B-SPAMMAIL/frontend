@@ -364,12 +364,6 @@ const handleSaveMailSettings = async (settings) => {
   cursor: not-allowed;
 }
 
-/* Empty Section */
-.empty-section {
-  min-height: 200px;
-}
-
-/* Checkbox */
 .checkbox-label {
   display: flex;
   align-items: flex-start;
@@ -381,7 +375,6 @@ const handleSaveMailSettings = async (settings) => {
   margin-top: 0.25rem;
 }
 
-/* Warning Box */
 .warning-box {
   display: flex;
   gap: 1rem;
