@@ -184,9 +184,9 @@ const searchDomain = async (domain) => {
     
     // 신고 횟수에 따른 위험 수준 결정
     let riskLevel = '낮음';
-    if (reportCount >= 50) {
+    if (reportCount >= 10) {
       riskLevel = '높음';
-    } else if (reportCount >= 10) {
+    } else if (reportCount >= 3) {
       riskLevel = '중간';
     } else if (reportCount == 0) {
       riskLevel = '정보 없음';

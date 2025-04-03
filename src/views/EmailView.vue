@@ -417,9 +417,9 @@ const fetchThreatInfo = async (email) => {
     // 신고 횟수에 따른 위협 수준 결정
     let level = '정보 없음';
     if (reportCount > 0) {
-      if (reportCount >= 50) {
+      if (reportCount >= 10) {
         level = '높음';
-      } else if (reportCount >= 10) {
+      } else if (reportCount >= 3) {
         level = '중간';
       } else {
         level = '낮음';
