@@ -1,0 +1,21 @@
+{
+  "routes": [
+    {
+      "route": "/inbox",
+      "methods": [
+        "get",
+        "head",
+        "post",
+        "put",
+        "connect",
+        "delete",
+        "options",
+        "trace",
+        "patch"
+      ],
+      "rewrite": "/inbox",
+      "redirect": "/inbox",
+      "statusCode": 302
+    }
+  ]
+}
